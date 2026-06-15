@@ -1,0 +1,8 @@
+{
+  "case_id": "golden-missing-scope",
+  "description": "Platform/market/category scope is not provided; no confident decision is allowed.",
+  "scenario": "Applicant asks whether their application can pass but does not specify the platform, destination market, or product category. The review must produce an intake checklist, not a definitive decision.",
+  "expected": {
+    "status_any_of": ["request_more_info"]
+  }
+}

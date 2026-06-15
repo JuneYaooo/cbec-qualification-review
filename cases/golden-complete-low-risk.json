@@ -1,0 +1,10 @@
+{
+  "case_id": "golden-complete-low-risk",
+  "description": "Complete, consistent, low-risk application should be approved.",
+  "scenario": "Distributor applies for Amazon US food (sauce) category. Business license, valid brand authorization covering US/Amazon, current FDA facility registration, matching test reports, and compliant labels are all submitted, consistent, and externally verified against T1/T2 sources.",
+  "expected": {
+    "status_any_of": ["approve"],
+    "min_findings": [],
+    "require_requirement_status": ["satisfied"]
+  }
+}

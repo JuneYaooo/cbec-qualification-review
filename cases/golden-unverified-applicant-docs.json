@@ -1,0 +1,9 @@
+{
+  "case_id": "golden-unverified-applicant-docs",
+  "description": "Only applicant-provided (T4) documents exist and the decision depends on external truth.",
+  "scenario": "All submitted evidence is applicant-provided (T4) and the decision depends on facts that must be confirmed in official registries (e.g. trademark status, certificate validity). External verification has not been performed.",
+  "expected": {
+    "status_any_of": ["request_more_info", "conditional_approve"],
+    "require_requirement_status": ["needs_external_verification"]
+  }
+}

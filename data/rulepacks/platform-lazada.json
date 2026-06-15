@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "platform-lazada",
+  "type": "platform",
+  "name": "Lazada platform qualification pack",
+  "jurisdiction": {
+    "country_code": "*",
+    "country_name": "Any country or region",
+    "region": "global"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-12",
+  "updated_by": "skill-maintainer",
+  "change_note": "Migrated from script PLATFORM_HINTS into a composable platform pack.",
+  "match": {
+    "keywords": ["lazada"]
+  },
+  "checklist_hints": [
+    "Check regional marketplace eligibility, restricted products, brand authorization, and category documents."
+  ],
+  "requirements": [],
+  "sources": [],
+  "gaps": [
+    "Seed pack: verify current official Lazada policy pages per case before final decisions."
+  ]
+}

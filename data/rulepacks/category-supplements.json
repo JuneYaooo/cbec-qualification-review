@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "category-supplements",
+  "type": "category",
+  "name": "Dietary supplements category overlay",
+  "jurisdiction": {
+    "country_code": "*",
+    "country_name": "Any country or region",
+    "region": "global"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-12",
+  "updated_by": "skill-maintainer",
+  "change_note": "Migrated from script CATEGORY_CHECKLIST into a composable category overlay.",
+  "match": {
+    "keywords": ["supplement", "vitamin", "health product", "nutrition product"]
+  },
+  "checklist_hints": [
+    "Product classification, ingredient legality, label disclaimer, claim substantiation, and GMP evidence are checked.",
+    "Novel ingredient, drug/medical claim, or high-risk health claim signals trigger human escalation."
+  ],
+  "requirements": [],
+  "sources": [],
+  "gaps": [
+    "Seed overlay: verify destination-market supplement classification and regulator requirements per case."
+  ]
+}

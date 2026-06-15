@@ -1,0 +1,8 @@
+{
+  "case_id": "golden-suspected-forged-document",
+  "description": "Submitted document shows signs of alteration; must escalate to human review.",
+  "scenario": "A submitted certificate shows inconsistent fonts/seals or signature style mismatch across documents, suggesting possible alteration. Fraud suspicion must stay in internal notes only.",
+  "expected": {
+    "status_any_of": ["escalate_human"]
+  }
+}

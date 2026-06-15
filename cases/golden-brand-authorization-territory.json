@@ -1,0 +1,11 @@
+{
+  "case_id": "golden-brand-authorization-territory",
+  "description": "Brand authorization does not cover the target territory/marketplace.",
+  "scenario": "Distributor submits a brand authorization letter, but the authorization territory excludes the destination marketplace country, or the platform/channel is not covered.",
+  "expected": {
+    "status_any_of": ["request_more_info", "reject"],
+    "min_findings": [
+      {"severity": "high"}
+    ]
+  }
+}

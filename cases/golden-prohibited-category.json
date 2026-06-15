@@ -1,0 +1,11 @@
+{
+  "case_id": "golden-prohibited-category",
+  "description": "Product category is prohibited by the platform or destination market.",
+  "scenario": "Applicant requests listing approval for a product category that is confirmed prohibited by official platform policy or destination-market regulation (T1 source).",
+  "expected": {
+    "status_any_of": ["reject"],
+    "min_findings": [
+      {"severity": "critical"}
+    ]
+  }
+}

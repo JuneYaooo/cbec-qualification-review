@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-06-12",
+  "default_pack": "global-baseline",
+  "coverage_strategy": "Use global-baseline for any country or region without a mature pack. Combine with platform and category overlays when available. Verify current official sources before final decisions.",
+  "composition_order": ["global", "platform", "region", "country", "category"],
+  "composition_rules": "Apply packs in composition_order. Packs are additive; when two packs define the same requirement_id, the later (higher-priority) pack type wins. Category overlays are the most specific and override everything else for that requirement_id.",
+  "packs": [
+    {
+      "pack_id": "global-baseline",
+      "path": "data/rulepacks/global-baseline.json",
+      "type": "global",
+      "coverage": "any country or region",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "platform-amazon",
+      "path": "data/rulepacks/platform-amazon.json",
+      "type": "platform",
+      "coverage": "Amazon",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "platform-tiktok",
+      "path": "data/rulepacks/platform-tiktok.json",
+      "type": "platform",
+      "coverage": "TikTok Shop",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "platform-shopee",
+      "path": "data/rulepacks/platform-shopee.json",
+      "type": "platform",
+      "coverage": "Shopee",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "platform-temu",
+      "path": "data/rulepacks/platform-temu.json",
+      "type": "platform",
+      "coverage": "Temu",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "platform-lazada",
+      "path": "data/rulepacks/platform-lazada.json",
+      "type": "platform",
+      "coverage": "Lazada",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "platform-aliexpress",
+      "path": "data/rulepacks/platform-aliexpress.json",
+      "type": "platform",
+      "coverage": "AliExpress",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "platform-tmall",
+      "path": "data/rulepacks/platform-tmall.json",
+      "type": "platform",
+      "coverage": "Tmall Global",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "category-food",
+      "path": "data/rulepacks/category-food.json",
+      "type": "category",
+      "coverage": "food and beverage",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "category-cosmetics",
+      "path": "data/rulepacks/category-cosmetics.json",
+      "type": "category",
+      "coverage": "cosmetics and personal care",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "category-supplements",
+      "path": "data/rulepacks/category-supplements.json",
+      "type": "category",
+      "coverage": "dietary supplements",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "category-electronics",
+      "path": "data/rulepacks/category-electronics.json",
+      "type": "category",
+      "coverage": "electronics and batteries",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "category-household",
+      "path": "data/rulepacks/category-household.json",
+      "type": "category",
+      "coverage": "household chemicals",
+      "maturity": "seed"
+    }
+  ],
+  "planned_pack_types": [
+    "country",
+    "region"
+  ],
+  "maturity_levels": [
+    "seed",
+    "validated",
+    "production",
+    "stale"
+  ]
+}

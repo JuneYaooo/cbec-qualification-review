@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "category-electronics",
+  "type": "category",
+  "name": "Electronics and batteries category overlay",
+  "jurisdiction": {
+    "country_code": "*",
+    "country_name": "Any country or region",
+    "region": "global"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-12",
+  "updated_by": "skill-maintainer",
+  "change_note": "Migrated from script CATEGORY_CHECKLIST into a composable category overlay.",
+  "match": {
+    "keywords": ["electronic", "battery", "wireless", "charger", "appliance", "gadget"]
+  },
+  "checklist_hints": [
+    "Electrical safety, EMC/radio, battery, charger, label, and market conformity evidence are checked.",
+    "Model/SKU consistency across test reports, declaration, packaging, and listing is verified."
+  ],
+  "requirements": [],
+  "sources": [],
+  "gaps": [
+    "Seed overlay: verify destination-market conformity scheme (CE/FCC/KC/UKCA etc.) per case."
+  ]
+}

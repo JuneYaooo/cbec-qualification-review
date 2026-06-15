@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "category-food",
+  "type": "category",
+  "name": "Food and beverage category overlay",
+  "jurisdiction": {
+    "country_code": "*",
+    "country_name": "Any country or region",
+    "region": "global"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-12",
+  "updated_by": "skill-maintainer",
+  "change_note": "Migrated from script CATEGORY_CHECKLIST into a composable category overlay.",
+  "match": {
+    "keywords": ["food", "beverage", "snack", "grocery", "sauce", "drink"]
+  },
+  "checklist_hints": [
+    "Ingredient list, allergen statement, nutrition/label materials, and food safety documents are present or requested.",
+    "Facility, importer, local representative, or registration requirements are checked for the destination market.",
+    "Additives, contaminants, health claims, and restricted ingredients are routed for current regulatory verification."
+  ],
+  "requirements": [],
+  "sources": [],
+  "gaps": [
+    "Seed overlay: verify destination-market food regulator requirements per case."
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "platform-amazon",
+  "type": "platform",
+  "name": "Amazon platform qualification pack",
+  "jurisdiction": {
+    "country_code": "*",
+    "country_name": "Any country or region",
+    "region": "global"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-12",
+  "updated_by": "skill-maintainer",
+  "change_note": "Migrated from script PLATFORM_HINTS into a composable platform pack.",
+  "match": {
+    "keywords": ["amazon"]
+  },
+  "checklist_hints": [
+    "Check official category approval, restricted product, brand/IP, and product compliance policy pages.",
+    "For FBA, include packaging, labeling, dangerous goods, and warehouse acceptance constraints."
+  ],
+  "requirements": [],
+  "sources": [],
+  "gaps": [
+    "Seed pack: verify current official Amazon policy pages per case before final decisions."
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "platform-tiktok",
+  "type": "platform",
+  "name": "TikTok Shop platform qualification pack",
+  "jurisdiction": {
+    "country_code": "*",
+    "country_name": "Any country or region",
+    "region": "global"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-12",
+  "updated_by": "skill-maintainer",
+  "change_note": "Migrated from script PLATFORM_HINTS into a composable platform pack.",
+  "match": {
+    "keywords": ["tiktok"]
+  },
+  "checklist_hints": [
+    "Check official seller eligibility, category qualification, product listing, claims/content, and fulfillment requirements.",
+    "Separate cross-border seller route from local seller route."
+  ],
+  "requirements": [],
+  "sources": [],
+  "gaps": [
+    "Seed pack: verify current official TikTok Shop policy pages per case before final decisions."
+  ]
+}

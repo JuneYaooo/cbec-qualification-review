@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "country-XX",
+  "type": "country",
+  "name": "Country qualification review pack",
+  "jurisdiction": {
+    "country_code": "XX",
+    "country_name": "Country Name",
+    "region": ""
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "YYYY-MM-DD",
+  "updated_by": "",
+  "change_note": "",
+  "freshness_policy": {
+    "platform_policy_days": 90,
+    "regulator_source_days": 365,
+    "customs_tax_days": 180,
+    "high_risk_category_days": 30
+  },
+  "regulator_map": [
+    {
+      "category_family": "food|cosmetics|supplements|electronics|household|toys|medical|other",
+      "authority": "",
+      "official_url": "",
+      "notes": ""
+    }
+  ],
+  "requirements": [
+    {
+      "requirement_id": "country-XX-example",
+      "surface": "seller",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Confirm seller/entity eligibility for the target country and marketplace route.",
+      "mandatory": "conditional",
+      "evidence_expected": [],
+      "decision_effect": "Cannot approve until the applicable official route is verified.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Replace this example with country-specific official requirements before use."
+    }
+  ],
+  "sources": [],
+  "gaps": []
+}

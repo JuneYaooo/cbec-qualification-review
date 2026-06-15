@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "category-cosmetics",
+  "type": "category",
+  "name": "Cosmetics and personal care category overlay",
+  "jurisdiction": {
+    "country_code": "*",
+    "country_name": "Any country or region",
+    "region": "global"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-12",
+  "updated_by": "skill-maintainer",
+  "change_note": "Migrated from script CATEGORY_CHECKLIST into a composable category overlay.",
+  "match": {
+    "keywords": ["cosmetic", "skincare", "beauty", "personal care", "sunscreen", "makeup"]
+  },
+  "checklist_hints": [
+    "INCI ingredient list, claims, responsible person/local representative, safety assessment, and notification/registration needs are checked.",
+    "Sunscreen, acne, whitening, anti-dandruff, or therapeutic claims are routed for classification review.",
+    "GMP, microbiology, heavy metals, and preservative evidence are requested when relevant."
+  ],
+  "requirements": [],
+  "sources": [],
+  "gaps": [
+    "Seed overlay: verify destination-market cosmetics regulator requirements per case."
+  ]
+}

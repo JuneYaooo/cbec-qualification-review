@@ -1,0 +1,3 @@
+display_name: CBEC Qualification Review
+short_description: Review seller, brand, product, and certificate qualifications with evidence-backed decisions.
+default_prompt: Review this cross-border e-commerce qualification package and provide an auditable approve, supplement, reject, or escalation decision.

@@ -1,0 +1,153 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "global-baseline",
+  "type": "global",
+  "name": "Global baseline qualification review",
+  "jurisdiction": {
+    "country_code": "*",
+    "country_name": "Any country or region",
+    "region": "global"
+  },
+  "maturity": "seed",
+  "version": "0.2.0",
+  "updated_at": "2026-06-12",
+  "updated_by": "skill-maintainer",
+  "change_note": "Align applicant role tokens with canonical list; add expiry/renewal monitoring requirement.",
+  "freshness_policy": {
+    "platform_policy_days": 90,
+    "regulator_source_days": 365,
+    "customs_tax_days": 180,
+    "high_risk_category_days": 30
+  },
+  "requirements": [
+    {
+      "requirement_id": "global-seller-eligibility",
+      "surface": "seller",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Confirm the applicant is eligible for the selected platform, marketplace site, and seller route.",
+      "mandatory": "conditional",
+      "evidence_expected": [
+        "business registration",
+        "tax/payee information where required",
+        "platform seller eligibility source"
+      ],
+      "decision_effect": "Missing or unsupported seller eligibility prevents approval.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "Verify official platform policy for the exact marketplace site."
+    },
+    {
+      "requirement_id": "global-entity-name-match",
+      "surface": "seller",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Applicant legal name must match submitted entity documents or have a clear authorization chain.",
+      "mandatory": true,
+      "evidence_expected": [
+        "business license or registration certificate",
+        "authorization document if applicant differs from rights holder"
+      ],
+      "decision_effect": "Major mismatch is high severity and normally requires more information or rejection.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Use official company registry when available."
+    },
+    {
+      "requirement_id": "global-brand-rights",
+      "surface": "brand_ip",
+      "category_scope": "*",
+      "applicant_role_scope": "brand_owner|distributor|importer|marketplace_seller|agent",
+      "business_model_scope": "*",
+      "requirement": "Brand ownership or authorization must cover product scope, territory, marketplace/channel, and review period.",
+      "mandatory": "conditional",
+      "evidence_expected": [
+        "trademark certificate",
+        "brand authorization letter",
+        "distribution agreement"
+      ],
+      "decision_effect": "Missing or out-of-scope authorization is high severity.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Trademark territory and class should be checked in the relevant official registry when decision depends on it."
+    },
+    {
+      "requirement_id": "global-category-not-prohibited",
+      "surface": "product_category",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Product category must not be prohibited by the platform or destination country.",
+      "mandatory": true,
+      "evidence_expected": [
+        "official platform restricted-products source",
+        "official regulator/customs source where relevant"
+      ],
+      "decision_effect": "Confirmed prohibited category is critical and leads to rejection.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "If uncertain, escalate human review for high-risk categories."
+    },
+    {
+      "requirement_id": "global-product-compliance-docs",
+      "surface": "certificate",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Product compliance documents must match the product name, SKU/model, manufacturing site, certificate scope, and destination market.",
+      "mandatory": "conditional",
+      "evidence_expected": [
+        "test report",
+        "certificate",
+        "declaration of conformity",
+        "COA/SDS/label where relevant"
+      ],
+      "decision_effect": "Mismatch or expired evidence is high severity if the category requires certification.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Exact evidence depends on category and market."
+    },
+    {
+      "requirement_id": "global-label-claims-language",
+      "surface": "platform_listing",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Labels, warnings, language, and claims must be compatible with the destination market and platform listing rules.",
+      "mandatory": "conditional",
+      "evidence_expected": [
+        "label artwork",
+        "claim substantiation",
+        "official label/claim requirements"
+      ],
+      "decision_effect": "Unsubstantiated or regulated claims can require rejection or human escalation.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "Medical, therapeutic, antimicrobial, child-safety, food, supplement, and cosmetic claims require extra caution."
+    },
+    {
+      "requirement_id": "global-expiry-monitoring",
+      "surface": "certificate",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Expiry dates and renewal obligations for licenses, certificates, and authorizations are recorded.",
+      "mandatory": true,
+      "evidence_expected": [
+        "document inventory with issue/expiry dates"
+      ],
+      "decision_effect": "Unknown validity of a core document prevents approval until confirmed.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Feeds renewal monitoring after the decision."
+    }
+  ],
+  "sources": [],
+  "gaps": [
+    "Country-specific regulator map must be verified per case.",
+    "Platform-country seller route must be verified per case.",
+    "Category-specific mandatory evidence must be verified per case."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "case_id": "golden-expired-certificate",
+  "description": "A required certificate is expired but replaceable; the review cannot pass until a current one is provided.",
+  "scenario": "Seller applies for category approval. The core compliance certificate expired before the review date and a renewal route exists. All other materials are consistent.",
+  "expected": {
+    "status_any_of": ["request_more_info"],
+    "min_findings": [
+      {"severity": "high"}
+    ],
+    "require_requirement_status": ["invalid"]
+  }
+}
