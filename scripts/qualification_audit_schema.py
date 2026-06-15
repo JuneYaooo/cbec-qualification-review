@@ -8,6 +8,8 @@ Commands:
   checklist --platform PLATFORM --market MARKET --category CATEGORY
   rulepack-new --country-code CODE --country-name NAME
   rulepack-validate <json-file>
+  rulepack-index-validate
+  source-freshness [json-file ...]
 """
 
 from __future__ import annotations
@@ -56,6 +58,8 @@ ALLOWED_SURFACES = {
 ALLOWED_RISK_LEVELS = {"low", "medium", "high", "critical"}
 
 DEFINITIVE_STATUSES = {"approve", "conditional_approve", "reject"}
+MATURE_PACKS = {"validated", "production"}
+AUTHORITATIVE_TIERS = {"T1", "T2"}
 
 REQUIRED_CASE_FIELDS = (
     "applicant_name",
@@ -83,6 +87,22 @@ PACK_MATCH_INPUT = {
 
 def today() -> str:
     return _dt.date.today().isoformat()
+
+
+def parse_date(value: Any) -> _dt.date | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return _dt.date.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+def age_days(value: Any, as_of: _dt.date | None = None) -> int | None:
+    checked = parse_date(value)
+    if checked is None:
+        return None
+    return ((as_of or _dt.date.today()) - checked).days
 
 
 def load_rulepack_index() -> dict[str, Any]:
@@ -157,6 +177,7 @@ def checklist(platform: str, market: str, category: str) -> dict[str, Any]:
     pack_items: list[str] = []
     matched_packs: list[str] = []
     matched_types: set[str] = set()
+    matched_combinations: list[dict[str, Any]] = []
 
     for entry in index.get("packs", []):
         pack = load_rulepack(entry["path"])
@@ -175,6 +196,24 @@ def checklist(platform: str, market: str, category: str) -> dict[str, Any]:
             matched_types.add(pack_type)
             pack_items.extend(pack.get("checklist_hints", []))
             pack_items.extend(req["requirement"] for req in pack.get("requirements", []))
+
+    for combo in index.get("priority_combinations", []):
+        if not isinstance(combo, dict):
+            continue
+        criteria = combo.get("criteria") if isinstance(combo.get("criteria"), dict) else {}
+        platform_hit = _keyword_hit(criteria.get("platform_keywords"), inputs["platform"])
+        market_hit = _keyword_hit(criteria.get("market_keywords"), inputs["market"])
+        category_hit = _keyword_hit(criteria.get("category_keywords"), inputs["category"])
+        if platform_hit and market_hit and category_hit:
+            matched_combinations.append(
+                {
+                    "combo_id": combo.get("combo_id"),
+                    "name": combo.get("name"),
+                    "maturity": combo.get("maturity", "seed"),
+                    "verification_tasks": combo.get("verification_tasks", []),
+                    "expected_packs": combo.get("expected_packs", []),
+                }
+            )
 
     warnings: list[str] = []
     if "platform" not in matched_types:
@@ -196,10 +235,17 @@ def checklist(platform: str, market: str, category: str) -> dict[str, Any]:
         "category": category,
         "generated_at": today(),
         "matched_packs": matched_packs,
+        "matched_priority_combinations": matched_combinations,
         "warnings": warnings,
         "note": "Routing checklist only. Verify current official platform and regulator sources before final decision.",
         "items": base_items + PROCESS_CHECKLIST + pack_items,
     }
+
+
+def _keyword_hit(keywords: Any, target: str) -> bool:
+    if not isinstance(keywords, list):
+        return False
+    return any(isinstance(keyword, str) and keyword.lower() in target for keyword in keywords)
 
 
 def rulepack_template(country_code: str, country_name: str, region: str = "") -> dict[str, Any]:
@@ -221,12 +267,16 @@ def rulepack_template(country_code: str, country_name: str, region: str = "") ->
         "updated_at": today(),
         "updated_by": "",
         "change_note": "Initial scaffold. Fill with verified official sources before use for final decisions.",
+        "match": {
+            "keywords": [code.lower(), name.lower()],
+        },
         "freshness_policy": {
             "platform_policy_days": 90,
             "regulator_source_days": 365,
             "customs_tax_days": 180,
             "high_risk_category_days": 30,
         },
+        "golden_case_ids": [],
         "regulator_map": [
             {
                 "category_family": "food|cosmetics|supplements|electronics|household|toys|medical|other",
@@ -380,8 +430,12 @@ def validate_rulepack(data: dict[str, Any]) -> list[str]:
     _require(isinstance(data.get("jurisdiction"), dict), "jurisdiction must be an object", errors)
     _require(isinstance(data.get("requirements"), list), "requirements must be a list", errors)
     _require(isinstance(data.get("sources"), list), "sources must be a list", errors)
+    if data.get("type") != "global":
+        match = data.get("match") if isinstance(data.get("match"), dict) else {}
+        _require(isinstance(match.get("keywords"), list) and bool(match.get("keywords")), "non-global packs need match.keywords", errors)
 
     source_ids = set()
+    source_by_id: dict[str, dict[str, Any]] = {}
     for idx, source in enumerate(data.get("sources") or []):
         if not isinstance(source, dict):
             errors.append(f"sources[{idx}] must be an object")
@@ -389,31 +443,184 @@ def validate_rulepack(data: dict[str, Any]) -> list[str]:
         sid = source.get("source_id")
         _require(bool(sid), f"sources[{idx}].source_id is required", errors)
         if sid:
-            source_ids.add(str(sid))
+            sid_text = str(sid)
+            _require(sid_text not in source_ids, f"sources[{idx}].source_id is duplicated: {sid_text}", errors)
+            source_ids.add(sid_text)
+            source_by_id[sid_text] = source
+        _require(bool(source.get("title")), f"sources[{idx}].title is required", errors)
         _require(source.get("tier") in ALLOWED_TIERS, f"sources[{idx}].tier is invalid", errors)
         _require(bool(source.get("checked_at")), f"sources[{idx}].checked_at is required", errors)
+        _require(parse_date(source.get("checked_at")) is not None, f"sources[{idx}].checked_at must be YYYY-MM-DD", errors)
         _require(bool(source.get("url")), f"sources[{idx}].url is required", errors)
+        if source.get("tier") in AUTHORITATIVE_TIERS:
+            _require(bool(source.get("language")), f"sources[{idx}].language is required for T1/T2 sources", errors)
+            _require(bool(source.get("confirms")), f"sources[{idx}].confirms is required for T1/T2 sources", errors)
 
+    requirement_ids: set[str] = set()
+    mandatory_count = 0
+    mandatory_with_authoritative_source = 0
     for idx, req in enumerate(data.get("requirements") or []):
         if not isinstance(req, dict):
             errors.append(f"requirements[{idx}] must be an object")
             continue
-        _require(bool(req.get("requirement_id")), f"requirements[{idx}].requirement_id is required", errors)
+        rid = req.get("requirement_id")
+        _require(bool(rid), f"requirements[{idx}].requirement_id is required", errors)
+        if rid:
+            rid_text = str(rid)
+            _require(rid_text not in requirement_ids, f"requirements[{idx}].requirement_id is duplicated: {rid_text}", errors)
+            requirement_ids.add(rid_text)
         _require(req.get("surface") in ALLOWED_SURFACES, f"requirements[{idx}].surface is invalid", errors)
         _require(bool(req.get("requirement")), f"requirements[{idx}].requirement is required", errors)
         _require("mandatory" in req, f"requirements[{idx}].mandatory is required", errors)
         _require(isinstance(req.get("evidence_expected"), list), f"requirements[{idx}].evidence_expected must be a list", errors)
         _require(bool(req.get("decision_effect")), f"requirements[{idx}].decision_effect is required", errors)
         _require(isinstance(req.get("source_ids"), list), f"requirements[{idx}].source_ids must be a list", errors)
+        if "freshness_days" in req:
+            _require(isinstance(req.get("freshness_days"), int) and req.get("freshness_days") > 0, f"requirements[{idx}].freshness_days must be a positive integer", errors)
+        has_authoritative_source = False
         for sid in req.get("source_ids") or []:
             _require(str(sid) in source_ids, f"requirements[{idx}] references missing source_id {sid}", errors)
+            if (source_by_id.get(str(sid)) or {}).get("tier") in AUTHORITATIVE_TIERS:
+                has_authoritative_source = True
+        if req.get("mandatory") is True:
+            mandatory_count += 1
+            if has_authoritative_source:
+                mandatory_with_authoritative_source += 1
 
-    if data.get("maturity") in {"validated", "production"}:
+    if data.get("maturity") in MATURE_PACKS:
         for idx, req in enumerate(data.get("requirements") or []):
             if isinstance(req, dict) and req.get("mandatory") is True:
                 _require(bool(req.get("source_ids")), f"validated/production mandatory requirements[{idx}] need source_ids", errors)
+        cases = data.get("golden_case_ids")
+        _require(isinstance(cases, list) and len(cases) >= 3, "validated/production packs need at least 3 golden_case_ids", errors)
+        for case_id in cases or []:
+            case_path = SKILL_ROOT / "cases" / f"{case_id}.json"
+            _require(case_path.exists(), f"golden case not found: cases/{case_id}.json", errors)
+
+    if data.get("maturity") == "production" and mandatory_count:
+        ratio = mandatory_with_authoritative_source / mandatory_count
+        _require(ratio >= 0.8, "production packs need at least 80% of mandatory requirements backed by T1/T2 sources", errors)
 
     return errors
+
+
+def validate_rulepack_index() -> list[str]:
+    errors: list[str] = []
+    index = load_rulepack_index()
+    seen: set[str] = set()
+    _require(isinstance(index.get("packs"), list), "index.packs must be a list", errors)
+    for idx, entry in enumerate(index.get("packs") or []):
+        if not isinstance(entry, dict):
+            errors.append(f"packs[{idx}] must be an object")
+            continue
+        pack_id = entry.get("pack_id")
+        path_text = entry.get("path")
+        _require(bool(pack_id), f"packs[{idx}].pack_id is required", errors)
+        if pack_id:
+            _require(str(pack_id) not in seen, f"packs[{idx}].pack_id is duplicated: {pack_id}", errors)
+            seen.add(str(pack_id))
+        _require(bool(path_text), f"packs[{idx}].path is required", errors)
+        pack_path = SKILL_ROOT / str(path_text)
+        _require(pack_path.exists(), f"packs[{idx}] path not found: {path_text}", errors)
+        if not pack_path.exists():
+            continue
+        try:
+            pack = json.loads(pack_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            errors.append(f"packs[{idx}] failed to read {path_text}: {exc}")
+            continue
+        if not isinstance(pack, dict):
+            errors.append(f"packs[{idx}] file must contain a JSON object: {path_text}")
+            continue
+        _require(pack.get("pack_id") == pack_id, f"packs[{idx}] pack_id mismatch with {path_text}", errors)
+        _require(pack.get("type") == entry.get("type"), f"packs[{idx}] type mismatch with {path_text}", errors)
+        _require(pack.get("maturity") == entry.get("maturity"), f"packs[{idx}] maturity mismatch with {path_text}", errors)
+        errors.extend(f"{path_text}: {error}" for error in validate_rulepack(pack))
+    for idx, combo in enumerate(index.get("priority_combinations") or []):
+        if not isinstance(combo, dict):
+            errors.append(f"priority_combinations[{idx}] must be an object")
+            continue
+        _require(bool(combo.get("combo_id")), f"priority_combinations[{idx}].combo_id is required", errors)
+        _require(isinstance(combo.get("criteria"), dict), f"priority_combinations[{idx}].criteria must be an object", errors)
+        _require(isinstance(combo.get("expected_packs"), list), f"priority_combinations[{idx}].expected_packs must be a list", errors)
+        for expected_pack in combo.get("expected_packs") or []:
+            _require(str(expected_pack) in seen, f"priority_combinations[{idx}] references missing pack {expected_pack}", errors)
+        _require(isinstance(combo.get("verification_tasks"), list) and bool(combo.get("verification_tasks")), f"priority_combinations[{idx}].verification_tasks must be a non-empty list", errors)
+    return errors
+
+
+def source_freshness(paths: list[str] | None = None) -> dict[str, Any]:
+    if paths:
+        pack_paths = [Path(path) for path in paths]
+    else:
+        pack_paths = [SKILL_ROOT / entry["path"] for entry in load_rulepack_index().get("packs", [])]
+
+    as_of = _dt.date.today()
+    stale: list[dict[str, Any]] = []
+    missing: list[dict[str, Any]] = []
+    unverified: list[dict[str, Any]] = []
+    checked_count = 0
+    for pack_path in pack_paths:
+        data = json.loads(pack_path.read_text(encoding="utf-8"))
+        sources = {
+            str(source.get("source_id")): source
+            for source in data.get("sources", [])
+            if isinstance(source, dict) and source.get("source_id")
+        }
+        for req in data.get("requirements", []):
+            if not isinstance(req, dict):
+                continue
+            freshness_days = req.get("freshness_days") if isinstance(req.get("freshness_days"), int) else 365
+            source_ids = req.get("source_ids") or []
+            if not source_ids:
+                unverified.append(
+                    {
+                        "pack": data.get("pack_id"),
+                        "maturity": data.get("maturity"),
+                        "requirement_id": req.get("requirement_id"),
+                        "issue": "requirement has no official source_ids; verify before final decision",
+                    }
+                )
+            if data.get("maturity") in MATURE_PACKS and req.get("mandatory") is True and not source_ids:
+                missing.append(
+                    {
+                        "pack": data.get("pack_id"),
+                        "requirement_id": req.get("requirement_id"),
+                        "issue": "mandatory mature requirement has no source_ids",
+                    }
+                )
+            for source_id in source_ids:
+                source = sources.get(str(source_id))
+                if source is None:
+                    missing.append(
+                        {
+                            "pack": data.get("pack_id"),
+                            "requirement_id": req.get("requirement_id"),
+                            "source_id": source_id,
+                            "issue": "referenced source is missing",
+                        }
+                    )
+                    continue
+                checked_count += 1
+                source_age = age_days(source.get("checked_at"), as_of)
+                if source_age is None or source_age > freshness_days:
+                    stale.append(
+                        {
+                            "pack": data.get("pack_id"),
+                            "requirement_id": req.get("requirement_id"),
+                            "source_id": source_id,
+                            "checked_at": source.get("checked_at"),
+                            "age_days": source_age,
+                            "freshness_days": freshness_days,
+                        }
+                    )
+    return {
+        "as_of": as_of.isoformat(),
+        "checked_source_links": checked_count,
+        "unverified_requirements": unverified,
+        "stale": stale,
+        "missing": missing,
+    }
 
 
 def cmd_sample(_: argparse.Namespace) -> int:
@@ -496,6 +703,26 @@ def cmd_rulepack_validate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_rulepack_index_validate(_: argparse.Namespace) -> int:
+    errors = validate_rulepack_index()
+    if errors:
+        for error in errors:
+            print(f"ERROR: {error}", file=sys.stderr)
+        return 1
+    print("OK")
+    return 0
+
+
+def cmd_source_freshness(args: argparse.Namespace) -> int:
+    try:
+        report = source_freshness(args.files)
+    except Exception as exc:
+        print(f"ERROR: failed to scan sources: {exc}", file=sys.stderr)
+        return 2
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return 1 if report["stale"] or report["missing"] else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Qualification audit schema helper")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -527,6 +754,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_rulepack_validate = sub.add_parser("rulepack-validate", help="validate a rule pack JSON file")
     p_rulepack_validate.add_argument("file")
     p_rulepack_validate.set_defaults(func=cmd_rulepack_validate)
+
+    p_rulepack_index_validate = sub.add_parser("rulepack-index-validate", help="validate rulepack index and all indexed packs")
+    p_rulepack_index_validate.set_defaults(func=cmd_rulepack_index_validate)
+
+    p_source_freshness = sub.add_parser("source-freshness", help="report stale or missing rule source links")
+    p_source_freshness.add_argument("files", nargs="*")
+    p_source_freshness.set_defaults(func=cmd_source_freshness)
     return parser
 
 

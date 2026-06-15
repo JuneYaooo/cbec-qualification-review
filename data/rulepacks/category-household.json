@@ -20,7 +20,36 @@
     "SDS/MSDS, hazard labeling, chemical restrictions, transport constraints, and claims are checked.",
     "Disinfectant, antibacterial, pesticide, or biocidal claims are routed for regulator-specific review."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "category-household-chemical-safety",
+      "surface": "certificate",
+      "category_scope": "household|cleaner|chemical|aerosol|detergent|disinfectant",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify SDS/MSDS, ingredient or formulation constraints, hazard classification, transport limits, and destination-market chemical or biocide route.",
+      "mandatory": "conditional",
+      "evidence_expected": ["SDS/MSDS", "official chemical/biocide source", "label artwork", "transport classification where relevant"],
+      "decision_effect": "Missing safety data or unclear chemical/biocide route blocks approval for affected products.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Disinfectant, antibacterial, pesticide, aerosol, corrosive, flammable, and concentrated products require human review when unclear."
+    },
+    {
+      "requirement_id": "category-household-label-claims",
+      "surface": "platform_listing",
+      "category_scope": "household|cleaner|chemical|aerosol|detergent|disinfectant",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Check hazard labels, warnings, language, use instructions, disposal, child safety, and antimicrobial/disinfectant claims.",
+      "mandatory": "conditional",
+      "evidence_expected": ["label artwork", "claim substantiation", "official platform/regulator source"],
+      "decision_effect": "Unsupported antimicrobial, pesticide, or disinfection claims require rejection or human escalation unless a lawful route is verified.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "Claims can move a household product into pesticide, biocide, or drug-like regulation depending on market."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed overlay: verify destination-market chemical/biocide regulator requirements per case."

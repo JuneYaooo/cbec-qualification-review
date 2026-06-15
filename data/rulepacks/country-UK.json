@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "country-UK",
+  "type": "country",
+  "name": "United Kingdom qualification review seed pack",
+  "jurisdiction": {
+    "country_code": "UK",
+    "country_name": "United Kingdom",
+    "region": "Europe"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-15",
+  "updated_by": "skill-maintainer",
+  "change_note": "Initial country seed pack with routing requirements only; official UK sources must be checked per case.",
+  "match": {
+    "keywords": ["uk", "united kingdom", "great britain", "gb"]
+  },
+  "freshness_policy": {
+    "platform_policy_days": 90,
+    "regulator_source_days": 365,
+    "customs_tax_days": 180,
+    "high_risk_category_days": 30
+  },
+  "regulator_map": [
+    {
+      "category_family": "product_safety|import",
+      "authority": "UK Government / OPSS route",
+      "official_url": "https://www.gov.uk/",
+      "notes": "Verify UK product safety, responsible person/importer, conformity marking, and market surveillance route."
+    },
+    {
+      "category_family": "food",
+      "authority": "Food Standards Agency route",
+      "official_url": "https://www.food.gov.uk/",
+      "notes": "Verify food import, labeling, allergens, claims, and business responsibilities."
+    },
+    {
+      "category_family": "brand_ip",
+      "authority": "UK IPO",
+      "official_url": "https://www.gov.uk/government/organisations/intellectual-property-office",
+      "notes": "Verify UK trademark status, owner, class, and territory when brand rights affect the decision."
+    }
+  ],
+  "checklist_hints": [
+    "Verify UK importer/responsible person, customs/tax route, product safety, labeling, and platform-site eligibility.",
+    "Check UK-specific product marking and language obligations instead of assuming EU evidence is sufficient."
+  ],
+  "requirements": [
+    {
+      "requirement_id": "country-UK-importer-responsibility",
+      "surface": "market_import",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Determine the UK importer, responsible entity, customs/tax, and platform-site seller route for the product.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official UK source", "importer or responsible entity evidence", "platform UK policy"],
+      "decision_effect": "Cannot approve until the applicable UK route is verified for regulated or imported products.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "Seed routing requirement; verify category-specific UK obligations."
+    }
+  ],
+  "golden_case_ids": [],
+  "sources": [],
+  "gaps": [
+    "Add current official UK sources for product safety, food, cosmetics, electronics, toys, and customs/tax routes.",
+    "Add golden cases before marking validated."
+  ]
+}

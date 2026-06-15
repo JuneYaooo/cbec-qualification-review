@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "region-EU",
+  "type": "region",
+  "name": "EU/EEA qualification review seed pack",
+  "jurisdiction": {
+    "country_code": "*",
+    "country_name": "European Union / EEA",
+    "region": "EU/EEA"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-15",
+  "updated_by": "skill-maintainer",
+  "change_note": "Initial regional seed pack with routing requirements only; member-state and official EU sources must be checked per case.",
+  "match": {
+    "keywords": ["eu", "eea", "european union", "europe"]
+  },
+  "freshness_policy": {
+    "platform_policy_days": 90,
+    "regulator_source_days": 365,
+    "customs_tax_days": 180,
+    "high_risk_category_days": 30
+  },
+  "regulator_map": [
+    {
+      "category_family": "product_safety|consumer_product",
+      "authority": "European Commission",
+      "official_url": "https://commission.europa.eu/",
+      "notes": "Verify current product safety, market surveillance, responsible person, and conformity route."
+    },
+    {
+      "category_family": "food|supplements",
+      "authority": "European Commission / EFSA route",
+      "official_url": "https://food.ec.europa.eu/",
+      "notes": "Verify food law, novel food, additives, claims, labeling, and member-state obligations."
+    },
+    {
+      "category_family": "cosmetics",
+      "authority": "European Commission cosmetics route",
+      "official_url": "https://single-market-economy.ec.europa.eu/",
+      "notes": "Verify responsible person, safety assessment, notification, ingredient, and claims obligations."
+    },
+    {
+      "category_family": "brand_ip",
+      "authority": "EUIPO",
+      "official_url": "https://www.euipo.europa.eu/",
+      "notes": "Verify EU trademark status, owner, class, and territory when brand rights affect the decision."
+    }
+  ],
+  "checklist_hints": [
+    "Check whether an EU responsible person, importer, economic operator, EORI/VAT/IOSS route, or member-state language requirement applies.",
+    "For CE-marked or regulated goods, verify conformity assessment, declaration, technical file, labeling, and authorized representative route.",
+    "Member-state rules can add language, notification, recycling, or category constraints; verify the exact destination country."
+  ],
+  "requirements": [
+    {
+      "requirement_id": "region-EU-economic-operator",
+      "surface": "market_import",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Determine whether the EU route needs an importer, responsible person, authorized representative, or other economic operator.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official EU source", "destination member-state source where relevant", "responsible entity evidence"],
+      "decision_effect": "Cannot approve regulated EU product routes until the required EU economic operator path is verified.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Seed routing requirement; verify the exact category and member state."
+    },
+    {
+      "requirement_id": "region-EU-conformity-labeling",
+      "surface": "certificate",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "For regulated goods, verify conformity assessment, label language, warnings, CE/other marks, and claims against current EU and member-state sources.",
+      "mandatory": "conditional",
+      "evidence_expected": ["declaration of conformity", "test report", "label artwork", "official regulator source"],
+      "decision_effect": "Missing conformity basis or label obligations requires more information or human escalation.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "Do not infer CE eligibility from a logo alone."
+    }
+  ],
+  "golden_case_ids": [],
+  "sources": [],
+  "gaps": [
+    "Add current EU official sources for GPSR/market surveillance, food, cosmetics, chemicals, electronics, and batteries.",
+    "Add member-state examples before marking validated.",
+    "Add golden cases covering CE route, responsible person missing, and prohibited/restricted product outcomes."
+  ]
+}

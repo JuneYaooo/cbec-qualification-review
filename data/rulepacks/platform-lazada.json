@@ -19,7 +19,22 @@
   "checklist_hints": [
     "Check regional marketplace eligibility, restricted products, brand authorization, and category documents."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "platform-lazada-country-site-policy",
+      "surface": "platform_listing",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify current Lazada country-site seller eligibility, restricted products, brand authorization, and category document requirements.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official Lazada country-site policy source", "seller route evidence", "brand/category materials where applicable"],
+      "decision_effect": "Cannot approve Lazada cases until country-site route and category requirements are verified.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "SEA country-site rules and local-language requirements can differ."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed pack: verify current official Lazada policy pages per case before final decisions."

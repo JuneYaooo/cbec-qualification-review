@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "region-ASEAN",
+  "type": "region",
+  "name": "ASEAN / Southeast Asia qualification review seed pack",
+  "jurisdiction": {
+    "country_code": "*",
+    "country_name": "ASEAN / Southeast Asia",
+    "region": "Southeast Asia"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-15",
+  "updated_by": "skill-maintainer",
+  "change_note": "Initial regional seed pack for SEA marketplace routing; country-specific official sources must be checked per case.",
+  "match": {
+    "keywords": ["asean", "sea", "southeast asia", "singapore", "malaysia", "thailand", "vietnam", "philippines", "indonesia"]
+  },
+  "freshness_policy": {
+    "platform_policy_days": 90,
+    "regulator_source_days": 365,
+    "customs_tax_days": 180,
+    "high_risk_category_days": 30
+  },
+  "regulator_map": [
+    {
+      "category_family": "food|supplements|cosmetics|electronics|household|other",
+      "authority": "Destination-country regulator",
+      "official_url": "",
+      "notes": "Verify the exact country regulator and platform site; ASEAN-level similarity does not replace country-specific rules."
+    }
+  ],
+  "checklist_hints": [
+    "Resolve the exact destination country and seller route before applying SEA platform policies.",
+    "Verify local-language label, importer/responsible person, Halal sensitivity where relevant, prohibited products, and category qualifications per country.",
+    "For cosmetics, food, supplements, electronics, and household chemicals, do not approve without country-specific official source checks."
+  ],
+  "requirements": [
+    {
+      "requirement_id": "region-ASEAN-country-specific-route",
+      "surface": "market_import",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Resolve the exact SEA destination country and verify seller route, regulator classification, local label language, and importer/responsible entity requirements.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official country regulator source", "official platform country-site source", "local label or responsible entity evidence"],
+      "decision_effect": "Cannot approve SEA regional cases from regional assumptions alone; country-specific official verification is required.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "Seed routing requirement for TikTok Shop, Shopee, Lazada, and similar SEA marketplace cases."
+    }
+  ],
+  "golden_case_ids": [],
+  "sources": [],
+  "gaps": [
+    "Split into country packs for Singapore, Malaysia, Thailand, Vietnam, Philippines, and Indonesia as usage grows.",
+    "Add current official sources and platform site policies before marking validated."
+  ]
+}

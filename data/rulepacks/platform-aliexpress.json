@@ -19,7 +19,22 @@
   "checklist_hints": [
     "Check seller identity, brand/IP authorization, category admission, and logistics restrictions."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "platform-aliexpress-seller-category-policy",
+      "surface": "platform_listing",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify current AliExpress seller identity, brand/IP authorization, category admission, prohibited/restricted products, and logistics constraints.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official AliExpress policy source", "brand/IP evidence", "category qualification evidence where applicable"],
+      "decision_effect": "Unverified category admission or brand/IP rights prevents approval.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "Seed platform requirement; attach current official policy source before a final decision."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed pack: verify current official AliExpress policy pages per case before final decisions."

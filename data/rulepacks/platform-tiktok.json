@@ -20,7 +20,36 @@
     "Check official seller eligibility, category qualification, product listing, claims/content, and fulfillment requirements.",
     "Separate cross-border seller route from local seller route."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "platform-tiktok-seller-route",
+      "surface": "seller",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Separate TikTok Shop local seller and cross-border seller routes and verify current official eligibility for the exact country site.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official TikTok Shop policy source", "seller route evidence", "KYB/KYC materials where required"],
+      "decision_effect": "Wrong seller route or unsupported eligibility prevents approval.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "Seed platform requirement; country-site policies may differ."
+    },
+    {
+      "requirement_id": "platform-tiktok-category-content-policy",
+      "surface": "platform_listing",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify current category qualification, prohibited/restricted products, claims/content, and fulfillment requirements for the exact TikTok Shop market.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official TikTok Shop policy source", "category qualification evidence", "listing/claim materials"],
+      "decision_effect": "Unverified category eligibility or unsupported claims require more information or human escalation.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "Especially important for cosmetics, supplements, food, electronics, and household chemicals."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed pack: verify current official TikTok Shop policy pages per case before final decisions."

@@ -20,7 +20,36 @@
     "Product classification, ingredient legality, label disclaimer, claim substantiation, and GMP evidence are checked.",
     "Novel ingredient, drug/medical claim, or high-risk health claim signals trigger human escalation."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "category-supplements-classification-ingredients",
+      "surface": "market_import",
+      "category_scope": "supplement|vitamin|health_product|nutrition_product",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify supplement classification, ingredient legality, dosage/form, manufacturing quality evidence, and market entry route for the destination market.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official regulator source", "ingredient list with amounts", "GMP/quality evidence where required"],
+      "decision_effect": "Unclear classification, restricted ingredients, or missing quality evidence blocks approval until resolved.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Novel ingredients, high-risk actives, and products resembling drugs require human escalation."
+    },
+    {
+      "requirement_id": "category-supplements-claims-label",
+      "surface": "platform_listing",
+      "category_scope": "supplement|vitamin|health_product|nutrition_product",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Check supplement label disclaimers, nutrition/health claims, disease claims, warnings, and platform claim policies.",
+      "mandatory": "conditional",
+      "evidence_expected": ["label artwork", "claim substantiation", "official claims/advertising source"],
+      "decision_effect": "Disease treatment/prevention claims normally trigger rejection or human escalation unless a lawful route is verified.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "Claims review must use official market and platform sources."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed overlay: verify destination-market supplement classification and regulator requirements per case."

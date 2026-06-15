@@ -13,6 +13,9 @@
   "updated_at": "YYYY-MM-DD",
   "updated_by": "",
   "change_note": "",
+  "match": {
+    "keywords": ["xx", "country name"]
+  },
   "freshness_policy": {
     "platform_policy_days": 90,
     "regulator_source_days": 365,
@@ -43,6 +46,7 @@
       "notes": "Replace this example with country-specific official requirements before use."
     }
   ],
+  "golden_case_ids": [],
   "sources": [],
   "gaps": []
 }

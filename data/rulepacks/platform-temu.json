@@ -19,7 +19,36 @@
   "checklist_hints": [
     "Check supplier/manufacturer qualification, product test reports, labeling, and logistics readiness."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "platform-temu-supplier-qualification",
+      "surface": "seller",
+      "category_scope": "*",
+      "applicant_role_scope": "manufacturer|brand_owner|distributor|importer|marketplace_seller|agent|service_provider|*",
+      "business_model_scope": "*",
+      "requirement": "Verify current Temu supplier, manufacturer, service capability, and product onboarding requirements for the applicable seller route.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official Temu policy or onboarding source", "business/manufacturer evidence", "service/logistics evidence where required"],
+      "decision_effect": "Unsupported supplier qualification blocks approval until clarified.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "Seed platform requirement; validate against official Temu materials available to the reviewer."
+    },
+    {
+      "requirement_id": "platform-temu-product-document-match",
+      "surface": "certificate",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Check product reports, labels, model/SKU, factory, and logistics documents against Temu and destination-market requirements.",
+      "mandatory": "conditional",
+      "evidence_expected": ["test report", "certificate", "label artwork", "official Temu or regulator source"],
+      "decision_effect": "SKU/model or scope mismatch requires more information and can block approval.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "High priority for electronics, batteries, toys, and regulated products."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed pack: verify current official Temu policy pages per case before final decisions."

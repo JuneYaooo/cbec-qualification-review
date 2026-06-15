@@ -20,7 +20,36 @@
     "Electrical safety, EMC/radio, battery, charger, label, and market conformity evidence are checked.",
     "Model/SKU consistency across test reports, declaration, packaging, and listing is verified."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "category-electronics-conformity",
+      "surface": "certificate",
+      "category_scope": "electronic|battery|wireless|charger|appliance|gadget",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify destination-market electrical safety, EMC/radio, battery, charger, energy label, and responsible entity conformity route.",
+      "mandatory": "conditional",
+      "evidence_expected": ["test report", "certificate or declaration", "official conformity source", "label/marking artwork"],
+      "decision_effect": "Missing or mismatched conformity evidence blocks approval for regulated electronics.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Wireless, lithium battery, charger, child-use, and high-voltage products require extra caution."
+    },
+    {
+      "requirement_id": "category-electronics-model-match",
+      "surface": "certificate",
+      "category_scope": "electronic|battery|wireless|charger|appliance|gadget",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Model, SKU, ratings, manufacturer, factory, sample, label, and listing data must match across test reports and product materials.",
+      "mandatory": true,
+      "evidence_expected": ["test report", "product label", "listing data", "factory/manufacturer evidence"],
+      "decision_effect": "Material model/SKU mismatch is high severity and requires correction before approval.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Do not treat a report for a similar model as sufficient without scope evidence."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed overlay: verify destination-market conformity scheme (CE/FCC/KC/UKCA etc.) per case."

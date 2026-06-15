@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-06-12",
+  "updated_at": "2026-06-15",
   "default_pack": "global-baseline",
   "coverage_strategy": "Use global-baseline for any country or region without a mature pack. Combine with platform and category overlays when available. Verify current official sources before final decisions.",
   "composition_order": ["global", "platform", "region", "country", "category"],
@@ -63,6 +63,48 @@
       "maturity": "seed"
     },
     {
+      "pack_id": "region-EU",
+      "path": "data/rulepacks/region-EU.json",
+      "type": "region",
+      "coverage": "EU/EEA",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "region-ASEAN",
+      "path": "data/rulepacks/region-ASEAN.json",
+      "type": "region",
+      "coverage": "ASEAN / Southeast Asia",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "country-US",
+      "path": "data/rulepacks/country-US.json",
+      "type": "country",
+      "coverage": "United States",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "country-UK",
+      "path": "data/rulepacks/country-UK.json",
+      "type": "country",
+      "coverage": "United Kingdom",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "country-JP",
+      "path": "data/rulepacks/country-JP.json",
+      "type": "country",
+      "coverage": "Japan",
+      "maturity": "seed"
+    },
+    {
+      "pack_id": "country-CN-import",
+      "path": "data/rulepacks/country-CN-import.json",
+      "type": "country",
+      "coverage": "China import and cross-border retail",
+      "maturity": "seed"
+    },
+    {
       "pack_id": "category-food",
       "path": "data/rulepacks/category-food.json",
       "type": "category",
@@ -98,10 +140,73 @@
       "maturity": "seed"
     }
   ],
-  "planned_pack_types": [
-    "country",
-    "region"
+  "priority_combinations": [
+    {
+      "combo_id": "amazon-US-food",
+      "name": "Amazon US food / grocery",
+      "maturity": "seed",
+      "criteria": {
+        "platform_keywords": ["amazon"],
+        "market_keywords": ["us", "usa", "united states", "america"],
+        "category_keywords": ["food", "grocery", "snack", "sauce", "beverage", "drink"]
+      },
+      "expected_packs": ["global-baseline", "platform-amazon", "country-US", "category-food"],
+      "verification_tasks": [
+        "Verify current Amazon US category approval, restricted products, FBA/dangerous goods, and food listing policy pages.",
+        "Verify current US food regulator/import/facility/label/claim route from official sources.",
+        "Check brand authorization territory and channel coverage for the US and Amazon."
+      ]
+    },
+    {
+      "combo_id": "tiktok-ASEAN-cosmetics",
+      "name": "TikTok Shop Southeast Asia cosmetics",
+      "maturity": "seed",
+      "criteria": {
+        "platform_keywords": ["tiktok"],
+        "market_keywords": ["asean", "sea", "southeast asia", "singapore", "malaysia", "thailand", "vietnam", "philippines", "indonesia"],
+        "category_keywords": ["cosmetic", "skincare", "beauty", "makeup", "sunscreen", "personal care"]
+      },
+      "expected_packs": ["global-baseline", "platform-tiktok", "region-ASEAN", "category-cosmetics"],
+      "verification_tasks": [
+        "Resolve the exact TikTok Shop country site and seller route before deciding.",
+        "Verify current official TikTok Shop category qualification, prohibited product, claims/content, and fulfillment policies for that country.",
+        "Verify local cosmetics notification/registration, responsible entity, language label, ingredient, and claims obligations from official country sources."
+      ]
+    },
+    {
+      "combo_id": "temu-electronics",
+      "name": "Temu electronics and batteries",
+      "maturity": "seed",
+      "criteria": {
+        "platform_keywords": ["temu"],
+        "market_keywords": ["us", "usa", "united states", "eu", "eea", "europe", "uk", "united kingdom", "japan", "jp", "china"],
+        "category_keywords": ["electronic", "battery", "wireless", "charger", "appliance", "gadget"]
+      },
+      "expected_packs": ["global-baseline", "platform-temu", "category-electronics"],
+      "verification_tasks": [
+        "Verify current Temu supplier/manufacturer, product test report, labeling, and restricted product requirements.",
+        "Verify destination-market electrical safety, EMC/radio, battery transport, energy label, and responsible entity route.",
+        "Check model/SKU consistency across listing, report, certificate, packaging, and shipment documents."
+      ]
+    },
+    {
+      "combo_id": "tmall-global-CN-food-cosmetics",
+      "name": "Tmall Global China import food/cosmetics",
+      "maturity": "seed",
+      "criteria": {
+        "platform_keywords": ["tmall"],
+        "market_keywords": ["china", "cn", "mainland china", "china import"],
+        "category_keywords": ["food", "grocery", "snack", "beverage", "cosmetic", "skincare", "beauty", "makeup", "personal care"]
+      },
+      "expected_packs": ["global-baseline", "platform-tmall", "country-CN-import", "category-food", "category-cosmetics"],
+      "verification_tasks": [
+        "Verify current Tmall Global merchant, brand, category, route, and product material requirements.",
+        "Separate cross-border retail from general trade import and verify the matching customs/regulator route.",
+        "Verify Chinese label, product classification, claims, brand authorization chain, and category-specific official requirements."
+      ]
+    }
   ],
+  "planned_pack_types": [],
   "maturity_levels": [
     "seed",
     "validated",

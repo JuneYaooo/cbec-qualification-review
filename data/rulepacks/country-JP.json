@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "country-JP",
+  "type": "country",
+  "name": "Japan qualification review seed pack",
+  "jurisdiction": {
+    "country_code": "JP",
+    "country_name": "Japan",
+    "region": "Asia"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-15",
+  "updated_by": "skill-maintainer",
+  "change_note": "Initial country seed pack with routing requirements only; official Japan sources must be checked per case.",
+  "match": {
+    "keywords": ["jp", "japan", "japanese"]
+  },
+  "freshness_policy": {
+    "platform_policy_days": 90,
+    "regulator_source_days": 365,
+    "customs_tax_days": 180,
+    "high_risk_category_days": 30
+  },
+  "regulator_map": [
+    {
+      "category_family": "food|supplements|cosmetics|medical",
+      "authority": "MHLW route",
+      "official_url": "https://www.mhlw.go.jp/",
+      "notes": "Verify product classification, importer/distributor responsibility, labeling, and notification/approval path."
+    },
+    {
+      "category_family": "electronics|wireless",
+      "authority": "MIC/METI route",
+      "official_url": "https://www.meti.go.jp/",
+      "notes": "Verify electrical safety, radio, battery, and product marking obligations."
+    },
+    {
+      "category_family": "brand_ip",
+      "authority": "Japan Patent Office",
+      "official_url": "https://www.jpo.go.jp/",
+      "notes": "Verify trademark owner, status, class, and territory when brand rights affect the decision."
+    }
+  ],
+  "checklist_hints": [
+    "Verify Japanese importer/distributor responsibility, Japanese-language labeling, classification, claims, and platform-site eligibility.",
+    "Escalate when classification may shift a product into food with function claims, quasi-drug, medical, wireless, battery, or child-safety routes."
+  ],
+  "requirements": [
+    {
+      "requirement_id": "country-JP-classification-labeling",
+      "surface": "market_import",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify Japan product classification, responsible importer/distributor path, and Japanese label/claims obligations.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official Japan source", "local responsible entity evidence", "Japanese label artwork"],
+      "decision_effect": "Cannot approve regulated Japan routes until classification and label obligations are verified.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Seed routing requirement; use official sources or qualified local review for high-risk categories."
+    }
+  ],
+  "golden_case_ids": [],
+  "sources": [],
+  "gaps": [
+    "Add current official Japan sources for food/supplements, cosmetics/quasi-drugs, electronics/wireless, and import/customs.",
+    "Add golden cases before marking validated."
+  ]
+}

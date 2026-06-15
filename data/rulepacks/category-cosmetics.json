@@ -21,7 +21,36 @@
     "Sunscreen, acne, whitening, anti-dandruff, or therapeutic claims are routed for classification review.",
     "GMP, microbiology, heavy metals, and preservative evidence are requested when relevant."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "category-cosmetics-classification-notification",
+      "surface": "market_import",
+      "category_scope": "cosmetic|skincare|beauty|personal_care|sunscreen|makeup",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify cosmetics classification, responsible person/local representative, notification/registration, safety assessment, and ingredient restrictions for the destination market.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official cosmetics regulator source", "INCI ingredient list", "safety assessment or notification evidence where required"],
+      "decision_effect": "Cannot approve cosmetics cases until classification and mandatory market entry route are verified.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Sunscreen, whitening, acne, anti-dandruff, hair growth, therapeutic, or SPF claims can change classification."
+    },
+    {
+      "requirement_id": "category-cosmetics-label-claims",
+      "surface": "platform_listing",
+      "category_scope": "cosmetic|skincare|beauty|personal_care|sunscreen|makeup",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Check cosmetic label language, ingredients, warnings, responsible entity, shelf-life, and product claims against market and platform rules.",
+      "mandatory": "conditional",
+      "evidence_expected": ["label artwork", "claim substantiation", "official platform/regulator source"],
+      "decision_effect": "Unsupported medical or functional claims require more information or escalation.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "Do not rely only on applicant marketing copy for claim classification."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed overlay: verify destination-market cosmetics regulator requirements per case."

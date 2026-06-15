@@ -53,6 +53,19 @@ When no specific rule pack exists, start with:
 | `production` | Reviewed, versioned, tested with cases, source refresh process exists | Preferred basis for decisions |
 | `stale` | Previously useful but source dates exceed freshness policy | Use only after re-verification |
 
+## Current Seed Coverage
+
+The repository includes seed-level packs for:
+
+- `country-US`
+- `region-EU`
+- `country-UK`
+- `country-JP`
+- `country-CN-import`
+- `region-ASEAN`
+
+These packs improve routing and checklist generation, but they are not authoritative rulebooks. They cannot support final decisions until official sources are attached, freshness is current, and maturity is raised through the governance process.
+
 ## Source Discovery By Country
 
 For unknown countries, search official sources in this order:
@@ -93,4 +106,3 @@ Escalate to human review when:
 - local representative/importer obligation is unclear
 - customs/import route differs by province/free zone/bonded model
 - product may be prohibited, controlled, medical, pesticide, child-safety, wireless, food, or supplement-related
-

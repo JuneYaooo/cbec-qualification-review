@@ -48,66 +48,11 @@ skill 的最终结论固定为六类，便于系统集成和复核：
 | `escalate_human` | 疑似造假、制裁/出口管制、身份敏感、法律歧义或官方来源冲突。 |
 | `not_applicable` | 请求范围不适用于给定平台、市场、类目或审核目的。 |
 
-## 架构设计
+## 整体项目逻辑图
 
-这个仓库按 Agent Skill 的渐进加载方式组织：入口保持轻量，细节按场景加载，规则和校验逻辑外置。
+![CBEC Qualification Review project logic diagram](./assets/project-logic-diagram.png)
 
-```text
-cbec-qualification-review/
-├── SKILL.md                         # skill 入口：触发条件、核心流程、硬规则、引用地图
-├── agents/openai.yaml               # UI 展示元数据
-├── references/                      # 审核方法、规则、模板和工程化说明
-│   ├── audit-workflow.md            # 审核阶段和最小决策包
-│   ├── document-taxonomy.md         # 文件分类、字段抽取和一致性检查
-│   ├── platform-market-matrix.md    # 平台/市场/类目路由
-│   ├── global-country-framework.md  # 国家/地区规则兜底框架
-│   ├── decision-rules.md            # 严重性、阻断项和最终状态逻辑
-│   ├── verification-playbook.md     # 官方来源、注册库和证书核验方法
-│   ├── privacy-security.md          # PII/KYB/KYC 隐私处理
-│   ├── report-templates.md          # Markdown 和 JSON 输出契约
-│   ├── rulepack-governance.md       # 规则包维护、版本和成熟度治理
-│   └── implementation-blueprint.md  # 产品化数据模型、API 和测试建议
-├── data/rulepacks/                  # 可组合规则包
-│   ├── index.json                   # 规则包索引与组合顺序
-│   ├── global-baseline.json         # 全局兜底规则
-│   ├── platform-*.json              # 平台规则覆盖层
-│   └── category-*.json              # 类目规则覆盖层
-├── scripts/
-│   └── qualification_audit_schema.py # 无依赖 schema、checklist、rulepack、golden case 工具
-└── cases/                           # 代表性 golden cases
-```
-
-规则包组合顺序由 [`data/rulepacks/index.json`](./data/rulepacks/index.json) 定义：
-
-```text
-global -> platform -> region -> country -> category
-```
-
-这意味着基础规则先提供兜底，平台、地区/国家和类目规则逐层叠加；当多个包定义同一个 `requirement_id` 时，后面的更高优先级规则覆盖前面的规则。
-
-## 架构是否合理
-
-总体是合理的，尤其适合作为“审核操作系统”而不是静态法规百科。
-
-| 维度 | 判断 |
-| --- | --- |
-| Skill 入口 | 合理。`SKILL.md` 负责触发、路由、硬规则和引用地图，没有把所有法规细节塞进入口。 |
-| 渐进加载 | 合理。`references/` 按审核阶段拆分，agent 只在需要时读取对应文件。 |
-| 输出契约 | 合理。`report-templates.md` 是字段单一来源，脚本能校验 JSON，便于产品化。 |
-| 规则治理 | 合理。rulepack 有成熟度、来源、freshness、组合顺序和贡献流程。 |
-| 风险控制 | 合理。明确区分 T1-T5 来源，不把申请人材料当作外部事实，敏感数据要求脱敏。 |
-| 自动化程度 | 中等。脚本能生成样例、checklist、规则包模板并做校验，但不负责 OCR、联网核验和真实 registry 查询。 |
-| 当前规则覆盖 | 需要加强。现有平台包和类目包多为 `seed`，很多包暂未填入 requirements/sources。 |
-
-当前最重要的边界是：这个 skill 已经有完整审核框架，但还不是可直接离线作最终结论的法规/平台规则库。对 Amazon、TikTok Shop、Shopee、Temu、Lazada、AliExpress、Tmall Global 等平台的现行要求，最终决策前仍必须查官方平台政策、监管机构或注册库，并记录 URL、来源层级和 checked date。
-
-## 推荐改进方向
-
-1. **补齐高频规则包**：优先把 Amazon US food、TikTok Shop SEA cosmetics、Temu electronics、Tmall Global food/cosmetics 等高频组合做成 `validated` 包。
-2. **增加 country/region 包**：目前 `index.json` 规划了 country/region，但仓库中还没有成熟国家包。建议先做 US、EU、UK、Japan、China import。
-3. **扩展 golden cases**：每个进入 `validated` 或 `production` 的规则包，至少配 3 个代表性 case，覆盖 approve、request_more_info、reject/escalate。
-4. **加入官方来源刷新机制**：可以增加脚本记录 source freshness，定期标出过期来源和需要重新核验的规则。
-5. **产品化时补 OCR/registry 层**：当前脚本不做文件解析和外部查询；如果接入实际系统，应单独建设 document extraction、source verification 和 human review queue。
+这张图用于快速说明“材料进入、规则匹配、来源核验、风险判断、补件/通过/拒绝”的完整链路。图像生成提示词见 [`assets/project-logic-diagram.image2-prompt.md`](./assets/project-logic-diagram.image2-prompt.md)。
 
 ## 安装
 
@@ -148,83 +93,6 @@ cp -R /path/to/cbec-qualification-review ~/.claude/skills/cbec-qualification-rev
 ```text
 用 cbec-qualification-review 根据当前材料写一封申请人补件通知，语气要适合运营发给商家。
 ```
-
-## 脚本用法
-
-[`scripts/qualification_audit_schema.py`](./scripts/qualification_audit_schema.py) 不依赖第三方库，可直接运行。
-
-生成样例审核 JSON：
-
-```bash
-python3 scripts/qualification_audit_schema.py sample
-```
-
-按平台、市场、类目生成初始 checklist：
-
-```bash
-python3 scripts/qualification_audit_schema.py checklist \
-  --platform amazon \
-  --market US \
-  --category food
-```
-
-校验审核 JSON：
-
-```bash
-python3 scripts/qualification_audit_schema.py validate path/to/review.json
-```
-
-生成国家规则包模板：
-
-```bash
-python3 scripts/qualification_audit_schema.py rulepack-new \
-  --country-code DE \
-  --country-name Germany \
-  > data/rulepacks/country-DE.json
-```
-
-校验规则包：
-
-```bash
-python3 scripts/qualification_audit_schema.py rulepack-validate data/rulepacks/global-baseline.json
-```
-
-用 golden case 检查输出：
-
-```bash
-python3 scripts/qualification_audit_schema.py case-check \
-  cases/golden-expired-certificate.json \
-  path/to/review.json
-```
-
-## 输出格式
-
-面向人看的结果建议使用 [`references/report-templates.md`](./references/report-templates.md) 里的 Markdown memo：
-
-- Decision
-- Scope
-- Requirement Coverage
-- Findings
-- Missing or Invalid Materials
-- Evidence and Sources
-- Applicant-Facing Supplement Request
-- Internal Notes
-- Disclaimer
-
-系统集成建议使用同一文件里的 JSON contract，并用脚本校验字段、状态、证据引用和来源引用是否完整。
-
-## 维护规则包
-
-新增或更新规则包时建议遵循 [`references/rulepack-governance.md`](./references/rulepack-governance.md)：
-
-1. 新建 rulepack。
-2. 补充官方来源，优先 T1/T2。
-3. 运行 `rulepack-validate`。
-4. 更新 `data/rulepacks/index.json`。
-5. 增加对应 golden case。
-6. 标注成熟度：`seed`、`validated`、`production` 或 `stale`。
-
-不要把未核验的卖家经验、社媒说法或服务商文章写成 authoritative rule。它们最多作为线索进入 `notes` 或 `gaps`。
 
 ## 安全与边界
 

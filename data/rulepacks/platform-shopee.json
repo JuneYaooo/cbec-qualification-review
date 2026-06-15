@@ -19,7 +19,22 @@
   "checklist_hints": [
     "Check marketplace-site seller eligibility, prohibited/restricted products, brand authorization, and local category rules."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "platform-shopee-country-site-policy",
+      "surface": "platform_listing",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify current Shopee country-site seller eligibility, prohibited/restricted products, brand/IP, and category qualification requirements.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official Shopee country-site policy source", "seller route evidence", "category document list where applicable"],
+      "decision_effect": "Cannot approve Shopee cases until the exact country-site policy route is verified.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "Do not generalize one Shopee country site's rules to another."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed pack: verify current official Shopee policy pages per case before final decisions."

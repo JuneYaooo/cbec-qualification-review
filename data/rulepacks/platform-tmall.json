@@ -19,7 +19,36 @@
   "checklist_hints": [
     "Check overseas entity, brand authorization, import/customs model, Chinese label, and category-specific approvals."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "platform-tmall-overseas-entity-brand",
+      "surface": "seller",
+      "category_scope": "*",
+      "applicant_role_scope": "brand_owner|distributor|importer|marketplace_seller|agent|*",
+      "business_model_scope": "*",
+      "requirement": "Verify current Tmall Global overseas entity, merchant route, brand authorization chain, and category admission requirements.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official Tmall Global policy source", "overseas entity evidence", "brand authorization chain"],
+      "decision_effect": "Unsupported entity route or brand authorization prevents approval.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "Check official platform source for the exact category and merchant type."
+    },
+    {
+      "requirement_id": "platform-tmall-import-label-category",
+      "surface": "market_import",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify product import/cross-border route, Chinese label, claims, and category-specific platform materials.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official Tmall Global category source", "Chinese label artwork", "customs/import route evidence"],
+      "decision_effect": "Unclear import route, missing Chinese label, or unsupported category materials require more information or escalation.",
+      "source_ids": [],
+      "freshness_days": 90,
+      "notes": "Pair with country-CN-import for China-specific regulator/customs checks."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed pack: verify current official Tmall Global policy pages per case before final decisions."

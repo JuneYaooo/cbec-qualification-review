@@ -39,6 +39,17 @@ Rules:
 - A pack other than `global` should declare `match.keywords` (lowercase substrings). Pack type determines what the keywords match against: `platform` packs match the platform name, `category` packs match the category, `country`/`region` packs match the destination market.
 - `scripts/qualification_audit_schema.py checklist` implements this matching and warns when no platform/category/market pack matched.
 
+## Priority Combinations
+
+`data/rulepacks/index.json` may define `priority_combinations` for high-frequency platform/market/category routes such as Amazon US food, TikTok Shop SEA cosmetics, Temu electronics, and Tmall Global China food/cosmetics.
+
+These are routing accelerators, not standalone rule packs:
+
+- `criteria` controls matching against checklist inputs.
+- `expected_packs` lists the packs that should contribute to the route.
+- `verification_tasks` names official-source checks that must be completed before a final decision.
+- `maturity` should stay `seed` until official sources and golden cases support the route.
+
 ## Scope Field Syntax
 
 `category_scope`, `applicant_role_scope`, and `business_model_scope` accept either `*` (any) or pipe-separated tokens, e.g. `distributor|marketplace_seller`.
@@ -61,13 +72,25 @@ python3 scripts/qualification_audit_schema.py rulepack-validate data/rulepacks/c
 ```
 
 4. Add or update `data/rulepacks/index.json`.
-5. Add at least one golden case under `cases/` if the pack will be used for decisions, and check produced reviews with:
+5. Validate the full index:
+
+```bash
+python3 scripts/qualification_audit_schema.py rulepack-index-validate
+```
+
+6. Add at least three golden cases under `cases/` before marking the pack `validated` or `production`, and check produced reviews with:
 
 ```bash
 python3 scripts/qualification_audit_schema.py case-check cases/<case>.json path/to/review.json
 ```
 
-6. Mark maturity honestly: `seed`, `validated`, `production`, or `stale`.
+7. Check source freshness:
+
+```bash
+python3 scripts/qualification_audit_schema.py source-freshness
+```
+
+8. Mark maturity honestly: `seed`, `validated`, `production`, or `stale`.
 
 ## Required Rule Fields
 
@@ -90,6 +113,7 @@ Each requirement should include:
 
 Every T1/T2 rule source must include:
 
+- source_id
 - title
 - URL
 - tier
@@ -128,6 +152,14 @@ Defaults (matching `global-baseline.json` `freshness_policy`):
 
 If a source is older than its freshness window, mark the related requirement `needs_external_verification`.
 
+Run the dependency-free scanner:
+
+```bash
+python3 scripts/qualification_audit_schema.py source-freshness
+```
+
+The report also lists source-free seed requirements as `unverified_requirements`. The command exits non-zero only when it finds stale or missing source links, which makes it suitable for CI without failing merely because seed packs are intentionally unfinished.
+
 ## Review Quality Gate
 
 A pack can be marked `production` only if:
@@ -138,3 +170,4 @@ A pack can be marked `production` only if:
 - at least 3 representative golden cases under `cases/` pass `case-check` with expected decisions
 - privacy notes exist for documents that include PII/KYB data
 
+`rulepack-validate` enforces core schema and maturity gates for a single pack. `rulepack-index-validate` enforces index consistency and validates every indexed pack. Current source freshness is checked separately with `source-freshness`.

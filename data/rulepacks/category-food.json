@@ -21,7 +21,36 @@
     "Facility, importer, local representative, or registration requirements are checked for the destination market.",
     "Additives, contaminants, health claims, and restricted ingredients are routed for current regulatory verification."
   ],
-  "requirements": [],
+  "requirements": [
+    {
+      "requirement_id": "category-food-classification-import",
+      "surface": "market_import",
+      "category_scope": "food|beverage|snack|grocery|sauce|drink",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify food product classification, import route, facility/importer obligations, and destination-market admissibility from official sources.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official food regulator source", "ingredient list", "facility/importer evidence where required"],
+      "decision_effect": "Cannot approve food cases until destination-market classification and import obligations are verified.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Seed category requirement; exact obligations vary by market and business model."
+    },
+    {
+      "requirement_id": "category-food-label-claims",
+      "surface": "platform_listing",
+      "category_scope": "food|beverage|snack|grocery|sauce|drink",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Check ingredient, allergen, nutrition, language, warning, date marking, origin, and health/nutrition claims for the destination market.",
+      "mandatory": "conditional",
+      "evidence_expected": ["label artwork", "claim substantiation", "official labeling/claims source"],
+      "decision_effect": "Missing label obligations or unsupported regulated claims require more information or human escalation.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "Route novel ingredients, special diet claims, infant/child products, and disease claims to human review."
+    }
+  ],
   "sources": [],
   "gaps": [
     "Seed overlay: verify destination-market food regulator requirements per case."

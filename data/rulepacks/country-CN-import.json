@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "country-CN-import",
+  "type": "country",
+  "name": "China import and cross-border retail seed pack",
+  "jurisdiction": {
+    "country_code": "CN",
+    "country_name": "China import",
+    "region": "Asia"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-15",
+  "updated_by": "skill-maintainer",
+  "change_note": "Initial China import seed pack with routing requirements only; official China sources must be checked per case.",
+  "match": {
+    "keywords": ["cn", "china", "china import", "mainland china", "tmall global", "jd worldwide"]
+  },
+  "freshness_policy": {
+    "platform_policy_days": 90,
+    "regulator_source_days": 365,
+    "customs_tax_days": 180,
+    "high_risk_category_days": 30
+  },
+  "regulator_map": [
+    {
+      "category_family": "food|import|customs",
+      "authority": "GACC route",
+      "official_url": "http://www.customs.gov.cn/",
+      "notes": "Verify import registration, customs route, bonded/direct mail model, and product admissibility."
+    },
+    {
+      "category_family": "cosmetics|medical",
+      "authority": "NMPA route",
+      "official_url": "https://www.nmpa.gov.cn/",
+      "notes": "Verify cosmetics/medical classification, registration/notification, labeling, and responsible entity route."
+    },
+    {
+      "category_family": "market_supervision|labeling|standards",
+      "authority": "SAMR route",
+      "official_url": "https://www.samr.gov.cn/",
+      "notes": "Verify market supervision, labeling, standards, claims, and product quality obligations."
+    },
+    {
+      "category_family": "brand_ip",
+      "authority": "CNIPA",
+      "official_url": "https://www.cnipa.gov.cn/",
+      "notes": "Verify trademark status, owner, class, and territory when brand rights affect the decision."
+    }
+  ],
+  "checklist_hints": [
+    "Separate cross-border retail bonded/direct-mail route from general trade import; required materials can differ.",
+    "Verify overseas entity, brand authorization chain, Chinese label, customs/import model, platform category requirements, and regulator classification.",
+    "For food, cosmetics, supplements, infant/child products, medical, wireless, and special-use claims, require current official source verification."
+  ],
+  "requirements": [
+    {
+      "requirement_id": "country-CN-import-route",
+      "surface": "market_import",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Identify whether the application uses cross-border retail, bonded warehouse, direct mail, or general trade import, then verify the matching China customs and platform route.",
+      "mandatory": "conditional",
+      "evidence_expected": ["platform route source", "customs/import source", "warehouse or logistics route evidence"],
+      "decision_effect": "Cannot approve China import/cross-border cases until the route and applicable official obligations are verified.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "Seed routing requirement; do not mix cross-border retail and general trade assumptions."
+    },
+    {
+      "requirement_id": "country-CN-chinese-label-claims",
+      "surface": "platform_listing",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Verify Chinese label, product name, ingredients/materials, warnings, claims, and category-specific registration or notification route.",
+      "mandatory": "conditional",
+      "evidence_expected": ["Chinese label artwork", "official regulator source", "platform category source"],
+      "decision_effect": "Unsupported claims, missing label obligations, or unclear category classification requires more information or human escalation.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "High-risk areas include food, supplements, cosmetics, infant/child products, medical, pesticides, and wireless/electronics."
+    }
+  ],
+  "golden_case_ids": [],
+  "sources": [],
+  "gaps": [
+    "Add current official GACC/NMPA/SAMR/CNIPA source IDs.",
+    "Add platform-specific Tmall Global and JD Worldwide source IDs before marking validated.",
+    "Add golden cases for food, cosmetics, and route mismatch scenarios."
+  ]
+}

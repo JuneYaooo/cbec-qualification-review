@@ -55,6 +55,17 @@ For each platform/market/category combination, build a checklist from these axes
 11. Renewal and expiry monitoring
 12. Manual review triggers
 
+## High-Frequency Routes
+
+`data/rulepacks/index.json` defines priority route hints for:
+
+- Amazon US food / grocery
+- TikTok Shop Southeast Asia cosmetics
+- Temu electronics and batteries
+- Tmall Global China import food/cosmetics
+
+When one of these routes matches, `scripts/qualification_audit_schema.py checklist` returns `matched_priority_combinations` with expected packs and verification tasks. Treat these as accelerated triage instructions; final decisions still require current official platform and regulator sources.
+
 ## Current-Rule Verification
 
 Before issuing a final decision:
@@ -64,4 +75,3 @@ Before issuing a final decision:
 - Prefer official policy pages over seller forums, agency blogs, or screenshots.
 - Record source URL and checked date.
 - If official pages are gated or unavailable, mark the conclusion as `needs_external_verification`.
-

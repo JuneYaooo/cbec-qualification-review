@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "pack_id": "country-US",
+  "type": "country",
+  "name": "United States qualification review seed pack",
+  "jurisdiction": {
+    "country_code": "US",
+    "country_name": "United States",
+    "region": "North America"
+  },
+  "maturity": "seed",
+  "version": "0.1.0",
+  "updated_at": "2026-06-15",
+  "updated_by": "skill-maintainer",
+  "change_note": "Initial country seed pack with routing requirements only; official sources must be checked per case.",
+  "match": {
+    "keywords": ["us", "usa", "united states", "america"]
+  },
+  "freshness_policy": {
+    "platform_policy_days": 90,
+    "regulator_source_days": 365,
+    "customs_tax_days": 180,
+    "high_risk_category_days": 30
+  },
+  "regulator_map": [
+    {
+      "category_family": "food|supplements|cosmetics",
+      "authority": "FDA",
+      "official_url": "https://www.fda.gov/",
+      "notes": "Verify product classification, facility/registration, labeling, claims, and import route when relevant."
+    },
+    {
+      "category_family": "electronics|wireless",
+      "authority": "FCC",
+      "official_url": "https://www.fcc.gov/",
+      "notes": "Verify radio/EMC authorization route for wireless and electronic products."
+    },
+    {
+      "category_family": "consumer_product|toys|children",
+      "authority": "CPSC",
+      "official_url": "https://www.cpsc.gov/",
+      "notes": "Verify consumer product safety, testing, certification, tracking label, and recall constraints."
+    },
+    {
+      "category_family": "customs|import",
+      "authority": "CBP",
+      "official_url": "https://www.cbp.gov/",
+      "notes": "Verify importer, entry, tariff, and admissibility requirements."
+    },
+    {
+      "category_family": "brand_ip",
+      "authority": "USPTO",
+      "official_url": "https://www.uspto.gov/",
+      "notes": "Verify trademark owner, status, class, and territory when brand rights affect the decision."
+    }
+  ],
+  "checklist_hints": [
+    "Confirm whether the applicant or route needs a US importer, agent, responsible party, tax/payee record, or platform-specific US seller eligibility evidence.",
+    "Route food, supplement, cosmetic, medical, pesticide, wireless, battery, toy, and child-oriented products to current official regulator checks.",
+    "Verify US labeling, claims, restricted product, and recall/safety status before approval."
+  ],
+  "requirements": [
+    {
+      "requirement_id": "country-US-regulator-routing",
+      "surface": "market_import",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Identify the applicable US regulator or registry for the product category and verify current official requirements.",
+      "mandatory": "conditional",
+      "evidence_expected": ["official regulator source", "registry lookup where available", "classification rationale"],
+      "decision_effect": "Do not approve regulated US categories until the applicable official source or registry path is verified.",
+      "source_ids": [],
+      "freshness_days": 365,
+      "notes": "Seed routing requirement; not a substitute for current FDA/FCC/CPSC/EPA/USDA/CBP or other official checks."
+    },
+    {
+      "requirement_id": "country-US-label-claims",
+      "surface": "platform_listing",
+      "category_scope": "*",
+      "applicant_role_scope": "*",
+      "business_model_scope": "*",
+      "requirement": "Check US label language, warning, origin, nutrition/ingredient, safety, and claims rules for the exact product category.",
+      "mandatory": "conditional",
+      "evidence_expected": ["label artwork", "claim substantiation", "official labeling or advertising source"],
+      "decision_effect": "Unsupported regulated claims or missing required warnings normally require more information or human escalation.",
+      "source_ids": [],
+      "freshness_days": 180,
+      "notes": "High-risk claims include disease treatment, antimicrobial, child safety, organic, environmental, and performance claims."
+    }
+  ],
+  "golden_case_ids": [],
+  "sources": [],
+  "gaps": [
+    "Add current official source IDs for FDA food/cosmetics/supplements routes.",
+    "Add current official source IDs for FCC/CPSC/EPA/USDA category paths.",
+    "Add golden cases for approve, request_more_info, and reject/escalate outcomes before marking validated."
+  ]
+}

@@ -131,9 +131,11 @@ python3 scripts/qualification_audit_schema.py validate path/to/review.json
 python3 scripts/qualification_audit_schema.py case-check cases/golden-expired-certificate.json path/to/review.json
 python3 scripts/qualification_audit_schema.py rulepack-new --country-code DE --country-name Germany
 python3 scripts/qualification_audit_schema.py rulepack-validate data/rulepacks/global-baseline.json
+python3 scripts/qualification_audit_schema.py rulepack-index-validate
+python3 scripts/qualification_audit_schema.py source-freshness
 ```
 
-The script is intentionally dependency-free so it can run in constrained environments. `checklist` builds its output from the rule packs in `data/rulepacks/` and warns when no platform/category/market pack matched. Golden cases in `cases/` define expected decisions for representative scenarios; use `case-check` to verify a produced review against them.
+The script is intentionally dependency-free so it can run in constrained environments. `checklist` builds its output from the rule packs in `data/rulepacks/`, includes matching `priority_combinations`, and warns when no platform/category/market pack matched. Golden cases in `cases/` define expected decisions for representative scenarios; use `case-check` to verify a produced review against them. Use `rulepack-index-validate` before publishing rule changes and `source-freshness` to find stale or missing official-source links.
 
 ## Reference Map
 
