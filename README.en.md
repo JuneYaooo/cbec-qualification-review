@@ -52,8 +52,6 @@ The final decision uses one fixed status:
 
 ![CBEC Qualification Review project logic diagram](./assets/project-logic-diagram-en.png)
 
-This diagram explains the full path from submitted materials to rule routing, official-source verification, risk decision, and audit output. The image prompt is available at [`assets/project-logic-diagram-en.image2-prompt.md`](./assets/project-logic-diagram-en.image2-prompt.md).
-
 ## Installation
 
 ### Codex

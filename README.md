@@ -54,8 +54,6 @@ skill 的最终结论固定为六类，便于系统集成和复核：
 
 ![跨境电商资质审核整体项目逻辑图](./assets/project-logic-diagram-zh.png)
 
-这张图用于快速说明“材料进入、规则匹配、来源核验、风险判断、补件/通过/拒绝”的完整链路。图像生成提示词见 [`assets/project-logic-diagram-zh.image2-prompt.md`](./assets/project-logic-diagram-zh.image2-prompt.md)。
-
 ## 安装
 
 ### Codex
