@@ -1,4 +1,4 @@
 interface:
   display_name: "出海体检官"
   short_description: "Launch checkup before cross-border products go live"
-  default_prompt: "Use $cross-border-product-ai-checkup as 出海体检官 / LaunchFit AI to check this cross-border product across target-market benchmarks, sellability, marketplace blocks, documents, labels, pricing, logistics, and remediation tasks."
+  default_prompt: "Use $launchfit-ai as 出海体检官 / LaunchFit AI to check this cross-border product across target-market benchmarks, sellability, marketplace blocks, documents, labels, pricing, logistics, and remediation tasks."
