@@ -2,12 +2,12 @@
 name: cross-border-product-ai-checkup
 description: Use this skill when the user wants an AI checkup for a cross-border e-commerce product before launch: whether the product can sell, is worth launching, what similar products in the target market are doing, what may block marketplace listing, what documents or labels are missing, how benchmark/pricing/logistics look, and what remediation wording is needed. Covers target-market benchmarking, product feasibility, packaging or label review, platform/category admission, qualification review, brand authorization, certificate/license validation, logistics budget comparison, and auditable approve/request/reject/escalate decisions for platforms such as Amazon, TikTok Shop, Shopee, Temu, Lazada, AliExpress, Tmall Global, JD Worldwide, Walmart Marketplace, eBay, or similar marketplaces.
 metadata:
-  short-description: Cross-border product AI checkup
+  short-description: LaunchFit AI / 出海体检官
 ---
 
-# Cross-border Product AI Checkup
+# LaunchFit AI / 出海体检官
 
-Use this skill to turn a cross-border product idea or messy launch package into an AI checkup report: can it sell, where it may get blocked, what to fix, what to prepare, and whether it can move forward.
+Use this skill as LaunchFit AI / 出海体检官: turn a cross-border product idea or messy launch package into an AI checkup report that shows whether it can sell, where it may get blocked, what to fix, what to prepare, and whether it can move forward.
 
 This skill is not only for low-frequency compliance review. It supports high-frequency seller workflows before and during launch: product feasibility, target-market benchmarking, competitor and pricing checks, packaging and label readiness, logistics planning, platform admission, qualification review, and applicant-facing remediation.
 

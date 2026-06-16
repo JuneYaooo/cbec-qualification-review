@@ -1,8 +1,8 @@
 <div align="center">
 
-# Cross-border Product AI Checkup
+# LaunchFit AI
 
-**An AI checkup for your cross-border product: find the right local benchmarks, then decide whether it can sell, is worth launching, and what must be fixed before listing.**
+**Find the right local benchmarks, then check launch risks before your cross-border product goes live.**
 
 [中文](./README.md)
 
@@ -17,7 +17,7 @@
 
 The expensive mistake in cross-border commerce is often not choosing the wrong product. It is **stocking the product first, then discovering that the marketplace needs more documents, the authorization does not cover the channel, the label must be reprinted, or the category cannot be sold**.
 
-This project turns "Can my product go overseas?" into a practical AI checkup report. Give it a product, target market, marketplace, packaging label, certificate report, brand document, or a few local benchmark screenshots. It first shows how similar products in the target market sell, package, price, and build trust; then it tells you what can move forward, what needs remediation, where margin may disappear, and what should stop for human review.
+LaunchFit AI turns "Can my product go overseas?" into a practical AI checkup report. Give it a product, target market, marketplace, packaging label, certificate report, brand document, or a few local benchmark screenshots. It first shows how similar products in the target market sell, package, price, and build trust; then it tells you what can move forward, what needs remediation, where margin may disappear, and what should stop for human review.
 
 ## Core Problems It Solves
 
