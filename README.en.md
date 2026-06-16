@@ -88,81 +88,68 @@ Based on these competitor screenshots and product details, suggest price band, c
 
 </details>
 
+## Who It Helps Most
+
+| User | Real pain | Value |
+| --- | --- | --- |
+| Cross-border sellers and brands | Inventory is ready, then the marketplace asks for documents, rejects the label, or flags the authorization | See whether the product can move forward before sampling, stocking, ads, or warehouse booking |
+| Product and operations teams | Selection decisions focus on sales and price while ignoring admission, label, logistics, and after-sales risk | Turn "worth selling" into a view of opportunity, blockers, cost pressure, and next actions |
+| Compliance and qualification teams | Review standards vary by person, supplement requests are unclear, and decisions are hard to audit | Convert review work into fixed statuses, evidence tables, gap lists, and auditable records |
+| Agencies and service providers | Client materials are messy, and every clarification round costs time | Identify which materials are usable, which must be reissued, and how to ask for them clearly |
+
+## The Risks It Helps You Avoid
+
+- **Inventory stuck before launch**: catch prohibited categories, gated categories, certification gaps, label blockers, local responsible-party needs, dangerous goods, and cold-chain constraints before the product reaches the warehouse.
+- **Endless document loops**: compare business registration, brand authorization, trademark, test report, COA, SDS, and label evidence in one place so entity, product, model, territory, platform, and validity line up.
+- **Pricing by guesswork**: connect competitors, channels, packaging claims, price bands, and logistics cost instead of pricing only from factory cost.
+- **Packaging reprints**: review front/back label, nutrition or ingredient panels, allergens, warnings, certification marks, responsible party, language, and high-risk claims before printing.
+- **Vague marketplace rejections**: translate requests such as "submit brand authorization" or "provide test reports" into the exact missing document, acceptable format, issuer, scope, and validity period.
+
+## Coverage
+
+The rule packs cover:
+
+- Marketplaces: Amazon, TikTok Shop, Shopee, Temu, Lazada, AliExpress, Tmall Global
+- Markets and regions: US, EU / EEA, UK, Japan, China import, ASEAN / Southeast Asia
+- Categories: food, cosmetics, supplements, electronics, household chemicals
+
+The review routes connect to official or authoritative source entry points such as Amazon Seller Central, TikTok Shop Seller Center, FDA, CBP, European Commission, FCC, CPSC, ASEAN, Singapore HSA, Malaysia NPRA, GOV.UK, MHLW, METI, GACC, SAMR, NMPA, WIPO, EUIPO, and USPTO.
+
+Those sources do not mean a product is automatically approved. They make the review traceable: every important conclusion can point back to submitted evidence, applicable rules, source tier, and checked date.
+
+## What Users Actually Get
+
+| Capability | User-facing result | Why it matters |
+| --- | --- | --- |
+| Pre-launch checkup | go / caution / stop / unknown, plus the top 3-5 risks | Decide whether to continue, change market, change platform, or pause before stocking |
+| Qualification gap review | Which material is missing, expired, mismatched, or unverifiable | Stop guessing what the marketplace actually wants |
+| Brand authorization review | Whether authorization covers the owner, territory, category, marketplace channel, and validity period | Avoid hidden IP risk from "authorized, but not for this country or channel" |
+| Label and claim review | Which words, marks, warnings, language, ingredients, or claims need revision | Fix packaging before printing or overseas inventory movement |
+| Competitor and price-band view | Competitor tiers, channel prices, package differentiation, and price suggestions | Build pricing and positioning from evidence rather than instinct |
+| Logistics comparison | Air, sea, rail, overseas warehouse, and local delivery tradeoffs | Consider margin, cash tied up, delivery time, and platform constraints together |
+| Supplement request wording | Clear messages for suppliers, sellers, or service providers | Reduce back-and-forth and make document requirements concrete |
+| Audit trail | Status, evidence, sources, gaps, decision, and reviewer notes | Support handoff, appeal, review, and internal process control |
+
+## Why It Is Trustworthy
+
+- **It establishes scope first**: platform, country, category, business model, applicant role, brand/IP, and submitted materials all affect the decision.
+- **It does not trust documents just because they look official**: applicant-provided files prove submission, not external truth; important facts still need registry, issuer, regulator, or platform verification.
+- **It does not rely on memory for current rules**: platform rules, regulatory requirements, and logistics constraints change, so outputs separate verified facts from assumptions.
+- **It is not a black-box score**: every issue is expressed as severity, evidence, source, impact, and required action.
+- **It will not force a pass**: missing scope, missing evidence, expired materials, out-of-scope authorization, suspected alteration, or conflicting official sources produce supplement, rejection, or human escalation.
+
+## Quality Status
+
+The project has three quality layers:
+
+- All indexed rule requirements have source entry points, currently covering 116 source links.
+- Seven replayable review examples cover approval, supplement request, rejection, human escalation, expired certificate, territory mismatch, and unverified applicant evidence.
+- Review output follows a fixed JSON contract, making it usable for internal systems, SOPs, reviewer handoff, and audit records.
+
+Rule-pack maturity is still `seed`. That means the project is useful for pre-launch checkups, material pre-review, supplement generation, and internal review support. Final platform submission, enforcement decisions, legal conclusions, and high-risk category decisions still require human review and current official confirmation.
+
 ## Safety And Scope
 
 This project supports cross-border product launch review, marketplace listing preparation, qualification review, material pre-review, remediation drafting, and internal process design. It does not provide legal advice and does not replace final judgment from marketplaces, regulators, certification bodies, or professional compliance advisors.
 
 When documents contain identity records, bank accounts, personal contact details, contracts, business registration numbers, or other sensitive data, follow [`references/privacy-security.md`](./references/privacy-security.md) for minimization, redaction, and audit records.
-
-## Installation
-
-### Codex
-
-```bash
-mkdir -p ~/.codex/skills
-cp -R /path/to/cbec-qualification-review ~/.codex/skills/cbec-qualification-review
-```
-
-### Claude Code
-
-```bash
-mkdir -p ~/.claude/skills
-cp -R /path/to/cbec-qualification-review ~/.claude/skills/cbec-qualification-review
-```
-
-Restart the corresponding agent after installation so the skill metadata reloads.
-
-## Runnable Local Capabilities
-
-This repository is not only prompt documentation. It includes executable review helpers:
-
-```bash
-python3 scripts/qualification_audit_schema.py checklist --platform amazon --market US --category food
-```
-
-Generate a platform/market/category checklist.
-
-```bash
-python3 scripts/qualification_audit_schema.py review-skeleton \
-  --platform amazon \
-  --market US \
-  --category food \
-  --applicant-name "Example Trading Co., Ltd." \
-  --applicant-role distributor \
-  --business-model marketplace_seller \
-  --brand-name "Example Brand" \
-  > /tmp/cbec_review_skeleton.json
-```
-
-Generate a structured intake review that follows the JSON contract, including scope, requirements, sources, findings, missing materials, remediation wording, and audit log. The default decision is `request_more_info` because a final approval is not allowed before submitted materials are matched to evidence and current sources.
-
-```bash
-python3 scripts/qualification_audit_schema.py validate /tmp/cbec_review_skeleton.json
-python3 scripts/qualification_audit_schema.py case-check cases/golden-unverified-applicant-docs.json /tmp/cbec_review_skeleton.json
-python3 scripts/qualification_audit_schema.py golden-replay
-python3 scripts/qualification_audit_schema.py source-freshness
-python3 scripts/qualification_audit_schema.py quality-gate
-```
-
-All indexed rule-pack requirements now have attached sources. `source-freshness` should return:
-
-```text
-checked_source_links: 116
-unverified_requirements: []
-stale: []
-missing: []
-```
-
-Three high-frequency routes have deeper T1 official source coverage:
-
-- `Amazon + US + food`: Amazon Seller Central, FDA, CBP
-- `TikTok Shop + ASEAN/Malaysia + cosmetics`: TikTok Shop Seller Center, ASEAN, Singapore HSA, Malaysia NPRA
-- `Temu + electronics`: Temu official entry points/terms/safety recall page, FCC, European Commission, CPSC
-
-Shopee, Lazada, AliExpress, Tmall Global, EU, UK, Japan, China import, supplements, and household chemicals also now include official or authoritative source entry points. Note that pack maturity is still `seed`: source coverage does not mean automatic final approval is safe. Promotion to `validated` or `production` still requires more golden cases, real-case replay, and human review sampling.
-
-The repository also includes 7 produced review fixtures covering approve, request_more_info, reject, escalate_human, expired certificate, territory mismatch, and unverified evidence paths. Run `golden-replay` to check them in batch.
-
-Before publishing, run `quality-gate` to check the rulepack index, source freshness, and golden replay in one command.
-
-See [`examples/README.md`](./examples/README.md) for runnable examples.

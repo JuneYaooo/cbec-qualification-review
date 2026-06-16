@@ -110,81 +110,68 @@
 
 </details>
 
+## 谁最需要它
+
+| 用户 | 真实痛点 | 它带来的价值 |
+| --- | --- | --- |
+| 跨境卖家 / 品牌方 | 产品已经备货，才发现平台要补资质、标签不合规、授权范围不够 | 在打样、备货、投流前先看清楚能不能卖、还缺什么、哪些问题会卡审 |
+| 选品和运营团队 | 只看销量和价格，忽略准入、标签、物流和售后风险 | 把“值得卖”拆成市场机会、准入风险、成本压力和执行动作 |
+| 合规 / 资质审核团队 | 每个人判断口径不同，补件要求说不清，复核难追溯 | 把审核变成固定状态、证据表、缺口表和可复核的审计记录 |
+| 服务商 / 代运营 | 客户材料混乱，沟通来回消耗时间 | 快速判断哪些材料能用、哪些必须重开、怎么向客户一次性说清楚 |
+
+## 它能帮你少踩哪些坑
+
+- **少压错库存**：先识别禁限售、类目准入、认证、标签、进口责任人、危险品和冷链等问题，避免货到仓后才发现不能上架。
+- **少反复补件**：把营业执照、品牌授权、商标、检测报告、COA、SDS、标签图放到同一张证据表里，看主体、产品、型号、地区、平台和有效期是否一致。
+- **少靠感觉定价**：竞品、渠道、包装卖点、价格带和物流成本放在一起看，避免只按出厂价加倍率。
+- **少重印包装**：提前检查正背标、营养/成分、过敏原、警示语、认证标识、责任方、语言和高风险宣称。
+- **少被平台一句话打回**：当平台要求补品牌授权、检测报告或标签材料时，能拆出真正缺口，并生成能发给供应商或客户的补件话术。
+
+## 覆盖范围
+
+已整理的平台、市场和类目包括：
+
+- 平台：Amazon、TikTok Shop、Shopee、Temu、Lazada、AliExpress、Tmall Global
+- 市场 / 区域：US、EU / EEA、UK、Japan、China import、ASEAN / Southeast Asia
+- 类目：food、cosmetics、supplements、electronics、household chemicals
+
+重点路径已经接入官方或权威来源入口，例如 Amazon Seller Central、TikTok Shop Seller Center、FDA、CBP、European Commission、FCC、CPSC、ASEAN、Singapore HSA、Malaysia NPRA、GOV.UK、MHLW、METI、GACC、SAMR、NMPA、WIPO、EUIPO、USPTO 等。
+
+这些来源不会把结果变成“自动通过”，但能让审核不再停留在经验判断：每个结论都可以追溯到材料、规则、来源和检查时间。
+
+## 对用户真正有用的点
+
+| 能力 | 用户看到的结果 | 为什么有价值 |
+| --- | --- | --- |
+| 上架前体检 | go / caution / stop / unknown，以及最重要的 3-5 个风险 | 帮你决定继续推进、换市场、换平台，还是先别备货 |
+| 资质缺口识别 | 哪份材料缺、哪份过期、哪份主体/地区/类目不匹配 | 平台卡审时不用猜，直接知道该找谁补什么 |
+| 品牌授权检查 | 授权链、商标地区、类目、平台渠道和有效期是否覆盖 | 避免“有授权但不能在这个国家或平台卖”的隐性风险 |
+| 标签和宣称检查 | 哪些文案、标识、成分、警示、语言需要改 | 包装印刷前发现问题，比货到海外后整改便宜得多 |
+| 竞品和价格带 | 竞品分层、渠道价格、包装差异化和定价建议 | 让定价和卖点有依据，而不是只看成本和感觉 |
+| 物流预算对比 | 空运、海运、铁路、海外仓、本地配送的成本/时效/风险 | 把毛利、现金流、时效和平台限制一起算 |
+| 补件话术 | 可直接发给供应商、商家或服务商的材料请求 | 减少来回沟通，让对方知道格式、签发方、有效期和适用范围 |
+| 审计记录 | 状态、证据、来源、缺口、结论和复核记录 | 团队交接、复盘、申诉和人工复核时有据可查 |
+
+## 为什么值得信任
+
+- **不是只给建议，而是先问清范围**：平台、国家、类目、业务模式、申请人角色、品牌/IP、材料清单都会影响结论。
+- **不是只看文件长得像不像**：申请人提供的材料只算提交证据，不默认等于真实有效；关键事实需要官方来源、注册库、签发机构或平台政策确认。
+- **不是记忆式合规**：平台政策、监管规则、物流限制都会变，输出会区分“已核验事实”和“仍需核验假设”。
+- **不是黑箱评分**：每个风险都落到 severity、evidence、source、impact、required action，方便人复核。
+- **不会为了给答案而给通过**：缺范围、缺材料、材料过期、授权不覆盖、疑似造假、官方来源冲突时，会输出补件、拒绝或人工升级，而不是硬给结论。
+
+## 质量状态
+
+这个项目已经具备三层质量门：
+
+- 所有已索引规则都有来源入口，当前覆盖 116 个 source links。
+- 关键决策路径有 7 个可回放样例，覆盖通过、补件、拒绝、人工升级、证书过期、授权范围不匹配、申请材料未外部核验。
+- 审核输出有固定 JSON contract，能用于内部系统、审核 SOP、复核和审计记录。
+
+规则包当前成熟度仍保持 `seed`。这意味着它适合做上架前体检、材料初审、补件生成和内部审核辅助；正式执法、平台最终提交、法律判断或高风险类目决策，仍需要人工复核和最新官方确认。
+
 ## 安全与边界
 
 本项目用于跨境电商商品出海评估、上架准备、资质审核、材料初审、补件生成和内部流程设计，不提供法律意见，也不替代平台、监管机构、认证机构或专业合规顾问的最终判断。
 
 含身份证件、银行账户、个人联系方式、合同、营业执照编号等敏感信息时，应按 [`references/privacy-security.md`](./references/privacy-security.md) 做最小化展示、脱敏和审计记录。
-
-## 安装
-
-### Codex
-
-```bash
-mkdir -p ~/.codex/skills
-cp -R /path/to/cbec-qualification-review ~/.codex/skills/cbec-qualification-review
-```
-
-### Claude Code
-
-```bash
-mkdir -p ~/.claude/skills
-cp -R /path/to/cbec-qualification-review ~/.claude/skills/cbec-qualification-review
-```
-
-安装后重启对应 agent，让 skill 元数据重新加载。
-
-## 本地可运行能力
-
-这个仓库不只是提示词文档，也提供可执行的审核辅助脚本：
-
-```bash
-python3 scripts/qualification_audit_schema.py checklist --platform amazon --market US --category food
-```
-
-生成平台/市场/类目检查清单。
-
-```bash
-python3 scripts/qualification_audit_schema.py review-skeleton \
-  --platform amazon \
-  --market US \
-  --category food \
-  --applicant-name "Example Trading Co., Ltd." \
-  --applicant-role distributor \
-  --business-model marketplace_seller \
-  --brand-name "Example Brand" \
-  > /tmp/cbec_review_skeleton.json
-```
-
-生成符合 JSON contract 的结构化评审草稿，包含 scope、requirements、sources、findings、missing materials、补件话术和 audit log。默认结论是 `request_more_info`，因为没有用户提交材料和证据匹配时不能给最终通过。
-
-```bash
-python3 scripts/qualification_audit_schema.py validate /tmp/cbec_review_skeleton.json
-python3 scripts/qualification_audit_schema.py case-check cases/golden-unverified-applicant-docs.json /tmp/cbec_review_skeleton.json
-python3 scripts/qualification_audit_schema.py golden-replay
-python3 scripts/qualification_audit_schema.py source-freshness
-python3 scripts/qualification_audit_schema.py quality-gate
-```
-
-当前已为全量已索引规则补入来源，`source-freshness` 应返回：
-
-```text
-checked_source_links: 116
-unverified_requirements: []
-stale: []
-missing: []
-```
-
-其中三条高频路径已重点补入 T1 官方来源：
-
-- `Amazon + US + food`：Amazon Seller Central、FDA、CBP
-- `TikTok Shop + ASEAN/Malaysia + cosmetics`：TikTok Shop Seller Center、ASEAN、Singapore HSA、Malaysia NPRA
-- `Temu + electronics`：Temu 官方入口/条款/安全召回、FCC、European Commission、CPSC
-
-Shopee、Lazada、AliExpress、Tmall Global、EU、UK、Japan、China import、supplements、household chemicals 也已补入官方或权威来源入口。注意：规则包成熟度仍是 `seed`，来源齐备不等于可以自动给最终通过；进入 `validated/production` 前仍需要更多 golden cases、真实案例回放和人工抽检。
-
-当前也提供 7 个 produced review fixtures，覆盖 approve、request_more_info、reject、escalate_human、expired certificate、territory mismatch、unverified evidence 等关键路径。运行 `golden-replay` 可批量校验。
-
-发布前可直接运行 `quality-gate`，一次性检查规则包索引、来源新鲜度和 golden replay。
-
-更多命令见 [`examples/README.md`](./examples/README.md)。
