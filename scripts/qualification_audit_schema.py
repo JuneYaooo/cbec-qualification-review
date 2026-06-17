@@ -1413,6 +1413,80 @@ def build_logistics_findings(bundle: dict[str, Any]) -> tuple[list[dict[str, Any
     return normalized, findings, missing_materials
 
 
+def build_go_to_market_findings(
+    bundle: dict[str, Any],
+    source_ids: list[str],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    case = bundle.get("case") if isinstance(bundle.get("case"), dict) else {}
+    packaging = bundle.get("packaging") if isinstance(bundle.get("packaging"), dict) else {}
+    model = normalize_go_to_market_model(case)
+    destination_markets = [item.lower() for item in normalize_destination_markets(case, allow_legacy=True)]
+    category = _text(case.get("product_category")).lower()
+    if model not in {"physical_trade", "hybrid"}:
+        return [], []
+
+    findings: list[dict[str, Any]] = []
+    missing_materials: list[dict[str, Any]] = []
+
+    def add_route_finding(issue: str, action: str, material: str, priority: str = "P0", severity: str = "high") -> None:
+        findings.append(
+            {
+                "finding_id": f"OFF-GTM-{len(findings) + 1:03d}",
+                "severity": severity,
+                "surface": "market_import",
+                "requirement": "Physical trade route must satisfy destination import, label, responsible-party, and customs requirements before shipment.",
+                "submitted_evidence": "User-provided physical trade case bundle.",
+                "observed_issue": issue,
+                "business_impact": "Inventory can be delayed, relabeled, rejected, or held at customs if import route evidence is incomplete.",
+                "decision_effect": "request_more_info",
+                "required_action": action,
+                "acceptable_evidence": "Current official import requirements, importer/responsible-party records, compliant local label artwork, customs document set, and logistics route confirmation.",
+                "source_ids": source_ids,
+                "confidence": "medium",
+            }
+        )
+        missing_materials.append(
+            {
+                "material": material,
+                "why_required": issue,
+                "acceptable_replacement": "Official/current import route confirmation plus matching product, label, and shipment documents.",
+                "owner": "importer / distributor / reviewer",
+                "priority": priority,
+            }
+        )
+
+    if "china" in destination_markets and category == "food":
+        languages = {_text(item).lower() for item in _as_list(packaging.get("languages"))}
+        if not {"chinese", "simplified chinese", "zh", "中文"}.intersection(languages):
+            add_route_finding(
+                "Chinese label basis is missing for China food import; visible packaging languages are not enough for local sale.",
+                "Prepare or verify compliant Chinese label artwork before shipment, including product name, ingredients, net content, origin, importer/distributor, nutrition, date/lot, storage, and required standard markings.",
+                "China-compliant Chinese label artwork and label review",
+            )
+        add_route_finding(
+            "China food import route is not evidenced yet; importer, customs, inspection, label filing/review, and product document set are not confirmed.",
+            "Confirm the China food import route with importer/customs broker and collect the required customs, inspection, invoice/packing, contract, origin, health/sanitary, and label materials before booking shipment.",
+            "China food import document set and importer/customs route confirmation",
+        )
+        label_blob = " ".join(
+            [
+                _text(packaging.get("front_label")),
+                _text(packaging.get("back_label")),
+                _joined_text(_as_list(packaging.get("claims"))),
+            ]
+        ).lower()
+        if "european union origin and not of european union origin" in label_blob or "eu and non-eu" in label_blob:
+            add_route_finding(
+                "EU and non-EU olive oil origin wording may not be sufficient for China import origin, COO, and Chinese label claims without supporting documents.",
+                "Verify certificate of origin, manufacturer/exporter documents, ingredient/origin statement, and Chinese label origin wording before using Italy/EU origin cues in import materials.",
+                "Certificate of origin and origin-claim support documents",
+                priority="P1",
+                severity="medium",
+            )
+
+    return findings, missing_materials
+
+
 def choose_launch_decision(
     findings: list[dict[str, Any]],
     requirements: list[dict[str, Any]],
@@ -1598,6 +1672,7 @@ def launch_report_from_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
     document_findings, document_missing = build_document_findings(bundle, documents, offline_source_ids)
     packaging_findings, packaging_missing = build_packaging_findings(bundle, offline_source_ids)
     logistics_rows, logistics_findings, logistics_missing = build_logistics_findings(bundle)
+    route_findings, route_missing = build_go_to_market_findings(bundle, offline_source_ids)
 
     external_requirement = {
         "requirement_id": "offline-current-source-verification",
@@ -1633,10 +1708,10 @@ def launch_report_from_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
     ]
 
     existing_count = len(report["findings"])
-    for idx, finding in enumerate(document_findings + packaging_findings + logistics_findings, start=existing_count + 1):
+    for idx, finding in enumerate(route_findings + document_findings + packaging_findings + logistics_findings, start=existing_count + 1):
         finding["finding_id"] = finding.get("finding_id") or f"OFF-{idx:03d}"
         report["findings"].append(finding)
-    report["missing_materials"].extend(benchmark_missing + document_missing + packaging_missing + logistics_missing)
+    report["missing_materials"].extend(benchmark_missing + route_missing + document_missing + packaging_missing + logistics_missing)
     report["decision"] = choose_launch_decision(
         report["findings"],
         report["requirements"],
@@ -1686,15 +1761,31 @@ def _display_label(value: Any) -> str:
 
 def _top_findings(report: dict[str, Any], limit: int = 3) -> list[dict[str, Any]]:
     severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+    finding_order = {"OFF-GTM": 0, "OFF-PACK": 1, "OFF-DOC": 2, "OFF-LOG": 3}
+
+    def source_priority(item: dict[str, Any]) -> int:
+        finding_id = _text(item.get("finding_id"))
+        for prefix, priority in finding_order.items():
+            if finding_id.startswith(prefix):
+                return priority
+        return 9
+
     findings = [item for item in report.get("findings") or [] if isinstance(item, dict)]
-    findings.sort(key=lambda item: severity_order.get(str(item.get("severity")), 9))
+    findings.sort(key=lambda item: (severity_order.get(str(item.get("severity")), 9), source_priority(item)))
     return findings[:limit]
 
 
 def _top_missing(report: dict[str, Any], limit: int = 3) -> list[dict[str, Any]]:
     priority_order = {"P0": 0, "P1": 1, "P2": 2}
+
+    def route_priority(item: dict[str, Any]) -> int:
+        blob = " ".join([_text(item.get("material")), _text(item.get("why_required"))]).lower()
+        if any(term in blob for term in ("china", "chinese label", "import document", "customs route", "certificate of origin")):
+            return 0
+        return 1
+
     items = [item for item in report.get("missing_materials") or [] if isinstance(item, dict)]
-    items.sort(key=lambda item: priority_order.get(str(item.get("priority")), 9))
+    items.sort(key=lambda item: (priority_order.get(str(item.get("priority")), 9), route_priority(item)))
     return items[:limit]
 
 

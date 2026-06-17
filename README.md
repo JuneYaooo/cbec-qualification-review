@@ -73,27 +73,33 @@
 | 补件话术 | 可直接发给供应商、客户或服务商的材料请求 |
 | 复核记录 | 结论、证据、来源、缺口和下一步动作，方便团队交接 |
 
-## 先看结果
+## 真实运行示例
 
-### 消费者与竞品信号
+下面的示例不是手工 mock。输入图片、结构化 bundle、JSON 报告、核心卡片、PDF 和长截图都保存在仓库里，可以复现。
 
-![消费者与竞品信号](./assets/demo-consumer-competitor-signals.png)
+### 示例 1：Mantova 橄榄油进口到中国
 
-### 目标市场对标与渠道洞察
+输入来自 `/Users/june/code/github/food_hack/test_data` 的 3 张商品实拍图，已复制到仓库内：
 
-![竞品价格与渠道洞察](./assets/demo-competitor-pricing-channels.png)
+| 正标 | 侧标 / 原产地信息 | 背标 / 营养与日期 |
+| --- | --- | --- |
+| <img src="./examples/real-runs/mantova-olive-oil-china-import/inputs/front-label.png" alt="Mantova 正标" width="220"> | <img src="./examples/real-runs/mantova-olive-oil-china-import/inputs/side-label-origin.png" alt="Mantova 侧标" width="220"> | <img src="./examples/real-runs/mantova-olive-oil-china-import/inputs/back-label-nutrition.png" alt="Mantova 背标" width="220"> |
 
-### 包装、配方与定价建议
+运行设置：
 
-![包装、配方与定价建议](./assets/demo-packaging-formula-pricing.png)
+- 商品：Fratelli Mantova Equilibrato Extra Virgin Olive Oil 250ml
+- 目标：从意大利进口到中国
+- 销售路径：`physical_trade`
+- 输入依据：用户提供图片，属于 T4；没有伪装成官方核验或自动 OCR 结果
+- 产物：[输入 bundle](./examples/real-runs/mantova-olive-oil-china-import/input-bundle.json)、[结构化报告 JSON](./examples/real-runs/mantova-olive-oil-china-import/outputs/report.json)、[详细 PDF](./examples/real-runs/mantova-olive-oil-china-import/outputs/detailed-report.pdf)
 
-### 物流对比与预算
+核心速览卡片：
 
-![物流对比与预算](./assets/demo-logistics-budget-eu.png)
+![Mantova 橄榄油进口中国核心速览卡片](./examples/real-runs/mantova-olive-oil-china-import/outputs/core-card.png)
 
-### 美国零售货架概念
+详细报告长截图：
 
-![美国零售货架概念](./assets/demo-retail-shelf-concept.png)
+![Mantova 橄榄油进口中国详细报告长截图](./examples/real-runs/mantova-olive-oil-china-import/outputs/detailed-report-long.png)
 
 ## 适合谁
 
@@ -112,7 +118,14 @@
 
 ## 它怎么判断
 
-![跨境商品出海上架评估整体逻辑图](./assets/project-logic-diagram-zh.png)
+新版判断顺序不是“先找对标”。它先锁定销售路径，再查准入风险，最后再做对标和商业判断：
+
+1. **锁定范围**：原产地、目标市场、销售路径、平台或线下渠道、类目、商品、申请人角色。
+2. **销售路径分流**：跨境电商优先查平台准入、类目、Listing、履约；实体贸易优先查出口、进口、清关、责任方、经销/零售渠道；混合路径两套分开跑。
+3. **准入风险粗筛**：禁限售、注册/备案、标签、宣称、品牌授权、证书、清关、物流和责任方。
+4. **信息渠道规划**：官方监管、海关、标准、认证、品牌/IP、企业注册、物流仓储、用户提供渠道。
+5. **目标市场对标**：只有在“能不能卖”的关键风险被识别后，再看当地类似商品的价格、包装、渠道、卖点和评论信号。
+6. **交付产物**：核心速览卡片 + 详细 PDF，所有结论标注证据层级和是否需要外部核验。
 
 <details>
 <summary>结构化结论状态</summary>

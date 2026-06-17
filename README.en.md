@@ -73,27 +73,33 @@ If available, add certificates, test reports, brand authorization, packaging ima
 | Remediation wording | Clear requests for suppliers, clients, or service providers |
 | Review trail | Decision, evidence, sources, gaps, and next actions for team handoff |
 
-## See The Outputs
+## Real Run Example
 
-### Consumer And Competitor Signals
+The example below is not a hand-made mock. The input images, structured bundle, JSON report, core card, PDF, and long screenshot are stored in this repository and can be reproduced.
 
-![Consumer and competitor signals](./assets/demo-consumer-competitor-signals.png)
+### Example 1: Mantova olive oil imported into China
 
-### Target-Market Benchmark And Channel Insight
+The input uses three product photos from `/Users/june/code/github/food_hack/test_data`, copied into the repository:
 
-![Competitor pricing and channels](./assets/demo-competitor-pricing-channels.png)
+| Front label | Side/origin label | Back/nutrition label |
+| --- | --- | --- |
+| <img src="./examples/real-runs/mantova-olive-oil-china-import/inputs/front-label.png" alt="Mantova front label" width="220"> | <img src="./examples/real-runs/mantova-olive-oil-china-import/inputs/side-label-origin.png" alt="Mantova side label" width="220"> | <img src="./examples/real-runs/mantova-olive-oil-china-import/inputs/back-label-nutrition.png" alt="Mantova back label" width="220"> |
 
-### Packaging, Formula And Pricing Suggestions
+Run setup:
 
-![Packaging, formula and pricing](./assets/demo-packaging-formula-pricing.png)
+- Product: Fratelli Mantova Equilibrato Extra Virgin Olive Oil 250ml
+- Goal: import from Italy into China
+- Go-to-market route: `physical_trade`
+- Evidence basis: user-provided photos, treated as T4; not presented as official verification or automated OCR
+- Artifacts: [input bundle](./examples/real-runs/mantova-olive-oil-china-import/input-bundle.json), [structured report JSON](./examples/real-runs/mantova-olive-oil-china-import/outputs/report.json), [detailed PDF](./examples/real-runs/mantova-olive-oil-china-import/outputs/detailed-report.pdf)
 
-### Logistics Comparison And Budget
+Core overview card:
 
-![Logistics budget comparison](./assets/demo-logistics-budget-eu.png)
+![Mantova olive oil China import core card](./examples/real-runs/mantova-olive-oil-china-import/outputs/core-card.png)
 
-### US Retail Shelf Concept
+Detailed report long screenshot:
 
-![US retail shelf concept](./assets/demo-retail-shelf-concept.png)
+![Mantova olive oil China import detailed report screenshot](./examples/real-runs/mantova-olive-oil-china-import/outputs/detailed-report-long.png)
 
 ## Who It Is For
 
@@ -112,7 +118,14 @@ Review routes connect to official or authoritative source entry points such as A
 
 ## How It Decides
 
-![CBEC Product Launch Review project logic diagram](./assets/project-logic-diagram-en.png)
+The current workflow does not start with benchmarking. It classifies the sales route first, screens admission risk, then uses benchmarks for commercial judgment:
+
+1. **Lock scope**: origin, destination markets, go-to-market route, marketplace or offline channel, category, product, and applicant role.
+2. **Split by route**: ecommerce prioritizes platform admission, category gating, listing, and fulfillment; physical trade prioritizes export, import, customs, responsible party, and distributor/retail channels; hybrid runs both.
+3. **Run admission-risk screen**: prohibited/restricted product, registration, label, claims, brand authorization, certificates, customs, logistics, and responsible party.
+4. **Plan source channels**: regulator, customs, standards, certification, brand/IP, company registry, logistics/warehouse, and user-provided channels.
+5. **Benchmark target market**: after core sellability risks are visible, compare local products for price, packaging, channel, claims, and review signals.
+6. **Deliver artifacts**: core overview card plus detailed PDF, with source tier and external-verification status for every important conclusion.
 
 <details>
 <summary>Structured Decision Statuses</summary>

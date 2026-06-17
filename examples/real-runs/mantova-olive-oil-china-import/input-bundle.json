@@ -1,0 +1,104 @@
+{
+  "bundle_type": "launchfit_offline_case",
+  "case": {
+    "case_id": "mantova-olive-oil-china-import",
+    "applicant_name": "Importer / distributor to be confirmed",
+    "applicant_role": "importer_distributor",
+    "origin_country": "Italy",
+    "platform": "",
+    "marketplace_site": "",
+    "destination_market": "China",
+    "destination_markets": ["China"],
+    "go_to_market_model": "physical_trade",
+    "business_model": "physical_import_distribution",
+    "product_category": "food",
+    "subcategory": "extra virgin olive oil",
+    "product_name": "Fratelli Mantova Equilibrato Extra Virgin Olive Oil 250ml",
+    "brand_name": "Fratelli Mantova",
+    "review_purpose": "pre-import launch readiness check for China",
+    "requested_decision_deadline": "",
+    "review_date": "2026-06-17"
+  },
+  "documents": [
+    {
+      "document_id": "doc-front-label-photo",
+      "document_type": "front label photo",
+      "file_reference": "examples/real-runs/mantova-olive-oil-china-import/inputs/front-label.png",
+      "holder": "Fratelli Mantova / Compagnia Alimentare Italiana S.p.A.",
+      "issuer": "user-provided product photo",
+      "number_redacted": "",
+      "issue_date": "",
+      "expiry_date": "",
+      "scope": "Front label shows Fratelli Mantova Equilibrato Olio Extra Vergine di Oliva, 250ml.",
+      "extraction_confidence": "medium",
+      "privacy_level": "public"
+    },
+    {
+      "document_id": "doc-side-origin-label-photo",
+      "document_type": "side origin and manufacturer label photo",
+      "file_reference": "examples/real-runs/mantova-olive-oil-china-import/inputs/side-label-origin.png",
+      "holder": "Compagnia Alimentare Italiana S.p.A.",
+      "issuer": "user-provided product photo",
+      "number_redacted": "",
+      "issue_date": "",
+      "expiry_date": "",
+      "scope": "Side label states extra virgin olive oil, blend of olive oils of European Union origin and not of European Union origin, obtained directly from olives and solely by mechanical means, cold pressed, bottled in Italy.",
+      "extraction_confidence": "medium",
+      "privacy_level": "public"
+    },
+    {
+      "document_id": "doc-back-nutrition-label-photo",
+      "document_type": "nutrition and durability label photo",
+      "file_reference": "examples/real-runs/mantova-olive-oil-china-import/inputs/back-label-nutrition.png",
+      "holder": "Fratelli Mantova / Compagnia Alimentare Italiana S.p.A.",
+      "issuer": "user-provided product photo",
+      "number_redacted": "",
+      "issue_date": "",
+      "expiry_date": "2027-09-17",
+      "scope": "Back label shows nutrition table, storage instruction, barcode 8006830260500, recycling marks, and best-before date visible as 17-09-2027.",
+      "extraction_confidence": "medium",
+      "privacy_level": "public"
+    }
+  ],
+  "packaging": {
+    "front_label": "FRATELLI MANTOVA since 1905. EQUILIBRATO. Olio extra vergine di oliva. 250ml.",
+    "back_label": "Extra virgin olive oil. Blend of olive oils of European Union origin and not of European Union origin. Superior category olive oil obtained directly from olives and solely by mechanical means. Cold pressed. Bottled in Italy by Compagnia Alimentare Italiana S.p.A. Best before 17-09-2027. Barcode 8006830260500.",
+    "claims": ["extra virgin olive oil", "cold pressed", "bottled in Italy"],
+    "ingredients_or_materials": ["olive oil"],
+    "warnings": [],
+    "languages": ["Italian", "English", "French"],
+    "units": ["250ml"],
+    "visible_certification_marks": [],
+    "data_basis": "user_provided"
+  },
+  "benchmarks": [],
+  "logistics": [],
+  "user_search_channels": [],
+  "sources": [
+    {
+      "source_id": "src-user-front-label-photo",
+      "title": "User-provided Mantova front label photo",
+      "url": "examples/real-runs/mantova-olive-oil-china-import/inputs/front-label.png",
+      "tier": "T4",
+      "checked_at": "2026-06-17",
+      "confirms": "Visible product name, brand, extra virgin olive oil category, and 250ml size from user-provided photo."
+    },
+    {
+      "source_id": "src-user-side-origin-photo",
+      "title": "User-provided Mantova side label photo",
+      "url": "examples/real-runs/mantova-olive-oil-china-import/inputs/side-label-origin.png",
+      "tier": "T4",
+      "checked_at": "2026-06-17",
+      "confirms": "Visible origin/manufacturer text from user-provided photo; not independently verified."
+    },
+    {
+      "source_id": "src-user-back-label-photo",
+      "title": "User-provided Mantova back label photo",
+      "url": "examples/real-runs/mantova-olive-oil-china-import/inputs/back-label-nutrition.png",
+      "tier": "T4",
+      "checked_at": "2026-06-17",
+      "confirms": "Visible nutrition, storage, barcode, recycling marks, and best-before text from user-provided photo."
+    }
+  ],
+  "external_checks": []
+}

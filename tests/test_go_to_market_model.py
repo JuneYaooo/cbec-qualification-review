@@ -102,6 +102,38 @@ class GoToMarketModelTests(unittest.TestCase):
         self.assertIn("offline_channel", channel_types)
         self.assertIn("verify-offline-channel-route", task_keys)
 
+    def test_china_food_physical_trade_surfaces_import_label_blockers(self):
+        bundle = bundle_template(
+            platform="",
+            market="China",
+            category="food",
+            product="extra virgin olive oil",
+            origin_country="Italy",
+            destination_markets=["China"],
+            go_to_market_model="physical_trade",
+        )
+        bundle["case"]["case_id"] = "china-food-physical"
+        bundle["packaging"] = {
+            "front_label": "Extra virgin olive oil 250ml",
+            "back_label": "Blend of olive oils of European Union origin and not of European Union origin. Bottled in Italy.",
+            "claims": ["extra virgin olive oil", "bottled in Italy"],
+            "ingredients_or_materials": ["olive oil"],
+            "warnings": [],
+            "languages": ["Italian", "English", "French"],
+            "units": ["250ml"],
+            "visible_certification_marks": [],
+            "data_basis": "user_provided",
+        }
+
+        report = launch_report_from_bundle(bundle)
+        issues = "\n".join(item.get("observed_issue", "") for item in report["findings"])
+        card_html = render_overview_card_html(report)
+
+        self.assertIn("Chinese label", issues)
+        self.assertIn("China food import", issues)
+        self.assertIn("EU and non-EU olive oil origin wording", issues)
+        self.assertIn("Chinese label", card_html)
+
     def test_deliverables_show_go_to_market_path(self):
         bundle = bundle_template(
             platform="Amazon",
