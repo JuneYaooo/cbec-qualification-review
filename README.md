@@ -17,34 +17,35 @@
 
 跨境上架最贵的错误，往往不是选品错了，而是**货已经备好，平台才告诉你资质不够、授权不覆盖、标签要改、类目不能卖**。
 
-出海体检官把“我这个品能不能出海”变成一份可执行的 AI 体检报告。给它一个商品、目标市场、平台、包装标签、证书报告、品牌材料，或几张当地竞品截图，它会先帮你找清楚：目标市场的类似商品怎么卖、怎么包装、怎么定价、靠什么建立信任；再判断哪里能推进，哪里要补件，哪里可能亏钱，哪里必须停下来复核。
+出海体检官把“我这个品能不能出海”变成一份可执行的 AI 体检报告。给它一个商品、原产地、一个或多个目标市场、平台、包装标签、证书报告、品牌材料，或几张当地竞品截图，它会先帮你找清楚：每个目标市场应该查哪些官方渠道、用户渠道和对标信息；再判断哪里能推进，哪里要补件，哪里可能亏钱，哪里必须停下来复核。
 
-## 现在能本地跑什么
+## 你需要提供什么
 
-这个 repo 现在包含一个不依赖外部服务的轻量 Skill 执行层：先把对标商品整理成 benchmark worksheet，再把商品信息、原产地、一个或多个目标市场、已抽取的证书字段、包装文案、对标行和物流行整理成 case bundle，就能生成结构化 JSON 体检报告和 Markdown 备忘录。
+最少只需要：
 
-```bash
-python3 scripts/qualification_audit_schema.py benchmark-validate examples/benchmark-worksheet.json
-python3 scripts/qualification_audit_schema.py benchmark-summarize examples/benchmark-worksheet.json
+- **原产地**：商品在哪里生产、组装或出口。
+- **目标市场**：想卖到哪里，支持多个国家或区域。
+- **平台和类目**：例如 Amazon US food、Temu EU electronics、TikTok Shop ASEAN cosmetics。
+- **商品信息**：名称、规格、成分/材料、功能宣称、品牌、包装文案。
 
-python3 scripts/qualification_audit_schema.py bundle-validate examples/offline-launch-case.json
+如果已经有材料，可以继续补充：证书/检测报告、品牌授权、包装图片、竞品链接/截图、物流报价、供应商信息、平台搜索链接、行业数据库或内部审核记录。
 
-python3 scripts/qualification_audit_schema.py launch-report \
-  examples/offline-launch-case.json \
-  > /tmp/launchfit-offline-report.json
+## 它会输出什么
 
-python3 scripts/qualification_audit_schema.py validate /tmp/launchfit-offline-report.json
+- **每个目标市场的审核路径**：不会把 US、EU、Japan 混成一个清单。
+- **最合适的信息渠道**：平台政策、监管机构、海关进口、品牌/IP、企业注册、认证/实验室、标准、物流仓储、原产地出口控制，以及你提供的搜索渠道。
+- **可执行核验任务**：查什么、为什么查、优先级、证据字段、刷新周期和来源层级。
+- **目标市场对标**：当地类似商品的价格、规格、包装、卖点、渠道、认证和评论信号。
+- **上架风险和资质缺口**：平台、市场、类目、品牌、标签、证书、物流分别卡在哪里。
+- **补件话术和复核记录**：方便直接发给供应商、客户、服务商或内部审核同事。
 
-python3 scripts/qualification_audit_schema.py launch-report-markdown \
-  /tmp/launchfit-offline-report.json \
-  > /tmp/launchfit-offline-report.md
-```
+## 为什么它不是普通“建议”
 
-本地执行层会覆盖 README 里最核心的报告面：目标市场对标、价格/单位价格、包装和宣称风险、物流路线风险、平台准入缺口、过期/错配材料、补件话术和审计记录。更关键的是，它会按“原产地 + 多个目标市场”拆分出每个市场最应该查的信息渠道和核验任务，包括平台政策、监管机构、海关进口、品牌/IP、企业注册、认证/实验室、标准、物流仓储和原产地出口控制。
-
-对标是核心：worksheet 支持直接竞品、替代品、相邻参考品、类目头部、本地小众品牌、平台爆品、线下货架和 DTC/社媒品牌，并汇总价格带、渠道地图、包装惯例、claims/proof、评论信号和 copy / avoid / improve 动作。
-
-边界也很明确：当前仓库不强依赖 OCR、实时竞品抓取、证书/商标/企业注册库查询、物流报价 API 或审核 UI。这些能力、以及用户已有的搜索渠道 / 平台链接 / 供应商渠道 / 行业数据库，都应接入同一套 `user_search_channels`、`source_candidates`、`research_tasks` 和 `external_checks` 结构；用户提供的截图、证书和报价会被标为 T4 / `user_provided`；需要官方或实时来源确认的事项会保留为 `needs_external_verification`。
+- 先确认原产地、目标市场、平台、类目、业务模式、申请人角色、品牌/IP 和材料范围，再给判断。
+- 不假装离线知道最新政策；需要实时确认的事项会输出 `needs_external_verification`。
+- 用户提供的截图、证书、报价、平台链接和行业数据库会进入 `user_search_channels`、`source_candidates`、`research_tasks` 或 `external_checks`，但不会默认当成官方事实。
+- 每个风险都落到 severity、evidence、source、impact、required action，方便人工复核。
+- 缺范围、缺材料、材料过期、授权不覆盖、疑似造假或官方来源冲突时，不会硬给通过，会输出补件、拒绝或人工升级。
 
 ## 它解决的核心问题
 
@@ -106,12 +107,28 @@ python3 scripts/qualification_audit_schema.py launch-report-markdown \
 
 规则来源连接到 Amazon Seller Central、TikTok Shop Seller Center、FDA、CBP、European Commission、FCC、CPSC、ASEAN、Singapore HSA、Malaysia NPRA、GOV.UK、MHLW、METI、GACC、SAMR、NMPA、WIPO、EUIPO、USPTO 等官方或权威入口。
 
-## 为什么它不是普通“建议”
+## 开发者快速开始
 
-- 先确认平台、国家、类目、业务模式、申请人角色、品牌/IP 和材料范围，再给判断。
-- 申请人材料只算提交证据，不默认等于真实有效；关键事实需要官方来源、注册库、签发机构或平台政策确认。
-- 每个风险都落到 severity、evidence、source、impact、required action，方便人工复核。
-- 缺范围、缺材料、材料过期、授权不覆盖、疑似造假或官方来源冲突时，不会硬给通过，会输出补件、拒绝或人工升级。
+这个 repo 包含一个不依赖外部服务的轻量 Skill 执行层，可以把 benchmark worksheet 和 case bundle 生成结构化 JSON 体检报告与 Markdown 备忘录。
+
+```bash
+python3 scripts/qualification_audit_schema.py benchmark-validate examples/benchmark-worksheet.json
+python3 scripts/qualification_audit_schema.py benchmark-summarize examples/benchmark-worksheet.json
+
+python3 scripts/qualification_audit_schema.py bundle-validate examples/offline-launch-case.json
+
+python3 scripts/qualification_audit_schema.py launch-report \
+  examples/offline-launch-case.json \
+  > /tmp/launchfit-offline-report.json
+
+python3 scripts/qualification_audit_schema.py validate /tmp/launchfit-offline-report.json
+
+python3 scripts/qualification_audit_schema.py launch-report-markdown \
+  /tmp/launchfit-offline-report.json \
+  > /tmp/launchfit-offline-report.md
+```
+
+更多可运行示例见 [examples/README.md](./examples/README.md)。
 
 ## 它怎么判断
 
