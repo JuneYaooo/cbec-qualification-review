@@ -18,6 +18,8 @@ Commands:
   coverage-report
   launch-report <bundle-json-file>
   launch-report-markdown <review-json-file>
+  launch-report-card <review-json-file> <output-file>
+  launch-report-detail <review-json-file> <output-file>
   rulepack-new --country-code CODE --country-name NAME
   rulepack-validate <json-file>
   rulepack-index-validate
@@ -28,9 +30,13 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import html
 import json
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -1560,6 +1566,272 @@ def _md_list(values: Any) -> str:
     return ", ".join(items)
 
 
+def _html(value: Any) -> str:
+    return html.escape(_text(value), quote=True)
+
+
+def _display_label(value: Any) -> str:
+    return _html(_text(value).replace("_", " "))
+
+
+def _top_findings(report: dict[str, Any], limit: int = 3) -> list[dict[str, Any]]:
+    severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+    findings = [item for item in report.get("findings") or [] if isinstance(item, dict)]
+    findings.sort(key=lambda item: severity_order.get(str(item.get("severity")), 9))
+    return findings[:limit]
+
+
+def _top_missing(report: dict[str, Any], limit: int = 3) -> list[dict[str, Any]]:
+    priority_order = {"P0": 0, "P1": 1, "P2": 2}
+    items = [item for item in report.get("missing_materials") or [] if isinstance(item, dict)]
+    items.sort(key=lambda item: priority_order.get(str(item.get("priority")), 9))
+    return items[:limit]
+
+
+def _channel_types(report: dict[str, Any], limit: int = 8) -> list[str]:
+    values: list[str] = []
+    seen: set[str] = set()
+    for candidate in report.get("source_candidates") or []:
+        if not isinstance(candidate, dict):
+            continue
+        channel = _text(candidate.get("channel_type"))
+        if not channel or channel in seen:
+            continue
+        seen.add(channel)
+        values.append(channel)
+    return values[:limit]
+
+
+def _evidence_status(report: dict[str, Any]) -> dict[str, int]:
+    counts = {"authoritative": 0, "user_provided": 0, "needs_external_verification": 0}
+    for evidence in report.get("evidence") or []:
+        if not isinstance(evidence, dict):
+            continue
+        tier = _text(evidence.get("tier"))
+        if tier in {"T1", "T2"}:
+            counts["authoritative"] += 1
+        elif tier == "T4":
+            counts["user_provided"] += 1
+    for requirement in report.get("requirements") or []:
+        if isinstance(requirement, dict) and requirement.get("status") == "needs_external_verification":
+            counts["needs_external_verification"] += 1
+    for task in report.get("research_tasks") or []:
+        if isinstance(task, dict) and task.get("status") == "needs_external_verification":
+            counts["needs_external_verification"] += 1
+    return counts
+
+
+def render_overview_card_html(report: dict[str, Any]) -> str:
+    case = report.get("case") if isinstance(report.get("case"), dict) else {}
+    decision = report.get("decision") if isinstance(report.get("decision"), dict) else {}
+    destinations = _as_list(case.get("destination_markets")) or _as_list(case.get("destination_market"))
+    findings = _top_findings(report)
+    missing = _top_missing(report)
+    channels = _channel_types(report)
+    evidence = _evidence_status(report)
+    product = _text(case.get("subcategory") or case.get("product_category") or "Product")
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Core Overview Card</title>
+  <style>
+    * {{ box-sizing: border-box; }}
+    body {{ margin: 0; width: 1200px; min-height: 1600px; background: #eef3f7; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; letter-spacing: 0; }}
+    .card {{ margin: 56px; padding: 54px 62px; min-height: 1480px; background: #fff; border: 1px solid #d9e1ec; border-radius: 8px; box-shadow: 0 18px 48px rgba(28,46,70,.14); }}
+    .eyebrow {{ color: #1769aa; font-weight: 800; font-size: 24px; margin-bottom: 18px; }}
+    h1 {{ font-size: 60px; line-height: 1.05; margin: 0 0 18px; }}
+    .summary {{ color: #617086; font-size: 28px; line-height: 1.35; margin-bottom: 28px; max-width: 900px; }}
+    .meta {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 28px 0 34px; }}
+    .meta > div, .panel {{ border: 1px solid #d9e1ec; border-radius: 8px; padding: 20px; background: #fbfdff; }}
+    .label {{ color: #617086; font-size: 17px; font-weight: 750; margin-bottom: 8px; text-transform: uppercase; }}
+    .value {{ font-size: 26px; font-weight: 800; line-height: 1.2; }}
+    .status {{ color: #167c62; }}
+    .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }}
+    h2 {{ font-size: 30px; margin: 0 0 16px; }}
+    ul {{ margin: 0; padding-left: 24px; }}
+    li {{ font-size: 22px; line-height: 1.35; margin: 0 0 10px; }}
+    .chips {{ display: flex; flex-wrap: wrap; gap: 10px; }}
+    .chip {{ font-size: 20px; padding: 9px 12px; border-radius: 6px; background: #edf4fb; color: #1d4f7a; border: 1px solid #c9d9e8; font-weight: 700; }}
+    .footer {{ margin-top: 22px; padding-top: 20px; border-top: 2px solid #d9e1ec; color: #617086; font-size: 20px; line-height: 1.35; }}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="eyebrow">LaunchFit AI · Core Overview Card</div>
+    <h1>{_html(product)} launch check</h1>
+    <div class="summary">{_html(decision.get("summary") or "Launch readiness depends on completing the research tasks and resolving missing materials.")}</div>
+    <section class="meta">
+      <div><div class="label">Launch view</div><div class="value status">{_display_label(decision.get("status"))}</div></div>
+      <div><div class="label">Origin</div><div class="value">{_html(case.get("origin_country"))}</div></div>
+      <div><div class="label">Destinations</div><div class="value">{_html(_joined_text(destinations))}</div></div>
+    </section>
+    <section class="grid">
+      <div class="panel"><h2>Top blockers</h2><ul>{"".join(f"<li>{_html(item.get('observed_issue'))}</li>" for item in findings) or "<li>No blocker supplied</li>"}</ul></div>
+      <div class="panel"><h2>Next actions</h2><ul>{"".join(f"<li>{_html(item.get('material'))}: {_html(item.get('why_required'))}</li>" for item in missing) or "<li>Complete P0/P1 research tasks</li>"}</ul></div>
+      <div class="panel"><h2>Must-check channels</h2><div class="chips">{"".join(f"<span class='chip'>{_display_label(channel)}</span>" for channel in channels) or "<span class='chip'>source candidates missing</span>"}</div></div>
+      <div class="panel"><h2>Evidence status</h2><ul><li>T1/T2 authoritative sources: {evidence['authoritative']}</li><li>T4 user-provided evidence: {evidence['user_provided']}</li><li>Needs external verification: {evidence['needs_external_verification']}</li></ul></div>
+    </section>
+    <div class="footer">Use this card for quick alignment. Use the detailed PDF for evidence, per-destination review, remediation, and audit trail.</div>
+  </main>
+</body>
+</html>
+"""
+
+
+def render_detailed_pdf_html(report: dict[str, Any]) -> str:
+    case = report.get("case") if isinstance(report.get("case"), dict) else {}
+    decision = report.get("decision") if isinstance(report.get("decision"), dict) else {}
+    benchmark_summary = report.get("market_benchmark_summary") if isinstance(report.get("market_benchmark_summary"), dict) else {}
+    market_rows = "".join(
+        f"<tr><td>{_html(item.get('destination_market'))}</td><td>{_html(_joined_text(item.get('matched_packs')))}</td><td>{len(item.get('research_tasks') or [])}</td><td>{len(item.get('source_candidates') or [])}</td></tr>"
+        for item in report.get("market_reviews") or []
+        if isinstance(item, dict)
+    )
+    candidate_rows = "".join(
+        f"<tr><td>{_html(item.get('destination_market'))}</td><td>{_html(item.get('channel_type'))}</td><td>{_html(item.get('title'))}</td><td>{_html(item.get('source_tier'))}</td><td>{_html(_joined_text(item.get('expected_facts')))}</td></tr>"
+        for item in (report.get("source_candidates") or [])[:40]
+        if isinstance(item, dict)
+    )
+    task_rows = "".join(
+        f"<tr><td>{_html(item.get('priority'))}</td><td>{_html(item.get('destination_market'))}</td><td>{_html(item.get('task_key'))}</td><td>{_html(item.get('instruction'))}</td><td>{_html(item.get('status'))}</td></tr>"
+        for item in (report.get("research_tasks") or [])[:50]
+        if isinstance(item, dict)
+    )
+    finding_rows = "".join(
+        f"<tr><td>{_html(item.get('severity'))}</td><td>{_html(item.get('surface'))}</td><td>{_html(item.get('observed_issue'))}</td><td>{_html(item.get('required_action'))}</td></tr>"
+        for item in report.get("findings") or []
+        if isinstance(item, dict)
+    )
+    missing_rows = "".join(
+        f"<tr><td>{_html(item.get('priority'))}</td><td>{_html(item.get('material'))}</td><td>{_html(item.get('why_required'))}</td><td>{_html(item.get('acceptable_replacement'))}</td></tr>"
+        for item in report.get("missing_materials") or []
+        if isinstance(item, dict)
+    )
+    evidence_rows = "".join(
+        f"<tr><td>{_html(item.get('evidence_id'))}</td><td>{_html(item.get('kind'))}</td><td>{_html(item.get('tier'))}</td><td>{_html(item.get('checked_at'))}</td><td>{_html(item.get('extracted_fact'))}</td></tr>"
+        for item in (report.get("evidence") or [])[:50]
+        if isinstance(item, dict)
+    )
+    audit_rows = "".join(
+        f"<tr><td>{_html(item.get('timestamp'))}</td><td>{_html(item.get('actor'))}</td><td>{_html(item.get('action'))}</td><td>{_html(item.get('details'))}</td></tr>"
+        for item in (report.get("audit_log") or [])[-25:]
+        if isinstance(item, dict)
+    )
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Detailed LaunchFit Review</title>
+  <style>
+    @page {{ size: A4; margin: 16mm; }}
+    body {{ color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; line-height: 1.5; letter-spacing: 0; }}
+    h1 {{ font-size: 30px; margin: 0 0 8px; }}
+    h2 {{ font-size: 20px; margin: 24px 0 10px; color: #1769aa; }}
+    p {{ margin: 0 0 10px; }}
+    table {{ width: 100%; border-collapse: collapse; margin: 8px 0 18px; font-size: 11px; }}
+    th, td {{ border: 1px solid #d9e1ec; padding: 7px; vertical-align: top; text-align: left; }}
+    th {{ background: #edf4fb; color: #1d4f7a; }}
+    .box {{ border: 1px solid #d9e1ec; border-radius: 6px; padding: 10px 12px; background: #f8fbfd; margin: 10px 0; }}
+  </style>
+</head>
+<body>
+  <h1>Detailed LaunchFit Review</h1>
+  <div class="box"><strong>Decision:</strong> {_display_label(decision.get('status'))} · {_display_label(decision.get('risk_level'))} · {_html(decision.get('summary'))}</div>
+  <h2>Scope</h2>
+  <table><tr><th>Product</th><th>Origin</th><th>Destinations</th><th>Platform</th><th>Category</th><th>Applicant</th></tr><tr><td>{_html(case.get('subcategory') or case.get('product_category'))}</td><td>{_html(case.get('origin_country'))}</td><td>{_html(_joined_text(_as_list(case.get('destination_markets')) or _as_list(case.get('destination_market'))))}</td><td>{_html(case.get('platform'))}</td><td>{_html(case.get('product_category'))}</td><td>{_html(case.get('applicant_name'))}</td></tr></table>
+  <h2>Per-destination market reviews</h2>
+  <table><tr><th>Destination</th><th>Matched packs</th><th>Research tasks</th><th>Source candidates</th></tr>{market_rows}</table>
+  <h2>Benchmark summary</h2>
+  <table><tr><th>Reference price band</th><th>Channel map</th><th>Claims/proof</th><th>Verification needed</th></tr><tr><td>{_html(benchmark_summary.get('reference_price_band'))}</td><td>{_html(benchmark_summary.get('channel_map'))}</td><td>{_html(benchmark_summary.get('claims_and_proof'))}</td><td>{_html(benchmark_summary.get('verification_needed'))}</td></tr></table>
+  <h2>Source candidates</h2>
+  <table><tr><th>Destination</th><th>Channel</th><th>Source</th><th>Tier</th><th>Expected facts</th></tr>{candidate_rows}</table>
+  <h2>Research tasks</h2>
+  <table><tr><th>Priority</th><th>Destination</th><th>Task</th><th>Instruction</th><th>Status</th></tr>{task_rows}</table>
+  <h2>Findings</h2>
+  <table><tr><th>Severity</th><th>Surface</th><th>Issue</th><th>Required action</th></tr>{finding_rows}</table>
+  <h2>Missing materials</h2>
+  <table><tr><th>Priority</th><th>Material</th><th>Why needed</th><th>Acceptable replacement</th></tr>{missing_rows}</table>
+  <h2>Evidence and source status</h2>
+  <table><tr><th>Evidence ID</th><th>Kind</th><th>Tier</th><th>Checked at</th><th>Fact</th></tr>{evidence_rows}</table>
+  <h2>Remediation wording</h2>
+  <div class="box">{_html((report.get('remediation') or {}).get('applicant_message'))}</div>
+  <h2>Audit log</h2>
+  <table><tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Details</th></tr>{audit_rows}</table>
+  <h2>Disclaimer</h2>
+  <p>{_html(report.get('disclaimer') or 'Operational launch-readiness review only; not legal advice.')}</p>
+</body>
+</html>
+"""
+
+
+def _chrome_path() -> str | None:
+    for candidate in (
+        shutil.which("chromium"),
+        shutil.which("chromium-browser"),
+        shutil.which("google-chrome"),
+        shutil.which("google-chrome-stable"),
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    ):
+        if candidate and Path(candidate).exists():
+            return str(candidate)
+    return None
+
+
+def _write_html_or_export(output_file: str, html_text: str, mode: str) -> int:
+    output_path = Path(output_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    suffix = output_path.suffix.lower()
+    if suffix in {"", ".html", ".htm"}:
+        output_path.write_text(html_text, encoding="utf-8")
+        return 0
+
+    chrome = _chrome_path()
+    if chrome is None:
+        print(
+            f"ERROR: Chrome/Chromium is required to export {suffix}; write .html instead or install Chrome.",
+            file=sys.stderr,
+        )
+        return 2
+
+    with tempfile.TemporaryDirectory() as tmp:
+        html_path = Path(tmp) / f"{mode}.html"
+        html_path.write_text(html_text, encoding="utf-8")
+        if mode == "card" and suffix == ".png":
+            command = [
+                chrome,
+                "--headless=new",
+                "--disable-gpu",
+                "--no-first-run",
+                "--window-size=1200,1800",
+                f"--screenshot={output_path}",
+                html_path.resolve().as_uri(),
+            ]
+        elif mode == "detail" and suffix == ".pdf":
+            command = [
+                chrome,
+                "--headless=new",
+                "--disable-gpu",
+                "--no-first-run",
+                f"--print-to-pdf={output_path}",
+                html_path.resolve().as_uri(),
+            ]
+        else:
+            expected = ".png" if mode == "card" else ".pdf"
+            print(
+                f"ERROR: unsupported {mode} output suffix '{suffix}'. Use .html or {expected}.",
+                file=sys.stderr,
+            )
+            return 2
+        try:
+            subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        except subprocess.CalledProcessError as exc:
+            print(f"ERROR: failed to export {output_path}: {exc.stderr.strip()}", file=sys.stderr)
+            return 1
+    return 0
+
+
 def render_launch_markdown(report: dict[str, Any]) -> str:
     case = report.get("case") if isinstance(report.get("case"), dict) else {}
     decision = report.get("decision") if isinstance(report.get("decision"), dict) else {}
@@ -2474,6 +2746,30 @@ def cmd_launch_report_markdown(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_launch_report_card(args: argparse.Namespace) -> int:
+    report = _load_json_object(args.review_file, "review")
+    if report is None:
+        return 2
+    errors = validate_payload(report)
+    if errors:
+        for error in errors:
+            print(f"ERROR: {error}", file=sys.stderr)
+        return 1
+    return _write_html_or_export(args.output_file, render_overview_card_html(report), "card")
+
+
+def cmd_launch_report_detail(args: argparse.Namespace) -> int:
+    report = _load_json_object(args.review_file, "review")
+    if report is None:
+        return 2
+    errors = validate_payload(report)
+    if errors:
+        for error in errors:
+            print(f"ERROR: {error}", file=sys.stderr)
+        return 1
+    return _write_html_or_export(args.output_file, render_detailed_pdf_html(report), "detail")
+
+
 def cmd_validate(args: argparse.Namespace) -> int:
     path = Path(args.file)
     try:
@@ -2719,6 +3015,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_launch_report_markdown = sub.add_parser("launch-report-markdown", help="render launch-readiness review JSON as Markdown")
     p_launch_report_markdown.add_argument("review_file")
     p_launch_report_markdown.set_defaults(func=cmd_launch_report_markdown)
+
+    p_launch_report_card = sub.add_parser("launch-report-card", help="render launch-readiness overview card as HTML or PNG")
+    p_launch_report_card.add_argument("review_file")
+    p_launch_report_card.add_argument("output_file")
+    p_launch_report_card.set_defaults(func=cmd_launch_report_card)
+
+    p_launch_report_detail = sub.add_parser("launch-report-detail", help="render detailed launch-readiness report as HTML or PDF")
+    p_launch_report_detail.add_argument("review_file")
+    p_launch_report_detail.add_argument("output_file")
+    p_launch_report_detail.set_defaults(func=cmd_launch_report_detail)
 
     p_validate = sub.add_parser("validate", help="validate a review JSON file")
     p_validate.add_argument("file")

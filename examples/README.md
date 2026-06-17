@@ -58,6 +58,30 @@ python3 scripts/qualification_audit_schema.py launch-report-markdown \
   > /tmp/launchfit-offline-report.md
 ```
 
+Generate the two final user-facing deliverables:
+
+```bash
+python3 scripts/qualification_audit_schema.py launch-report-card \
+  /tmp/launchfit-offline-report.json \
+  /tmp/launchfit-core-card.html
+
+python3 scripts/qualification_audit_schema.py launch-report-detail \
+  /tmp/launchfit-offline-report.json \
+  /tmp/launchfit-detailed-review.html
+```
+
+If local Chrome/Chromium is available, the same commands can export a screenshot card and PDF:
+
+```bash
+python3 scripts/qualification_audit_schema.py launch-report-card \
+  /tmp/launchfit-offline-report.json \
+  /tmp/launchfit-core-card.png
+
+python3 scripts/qualification_audit_schema.py launch-report-detail \
+  /tmp/launchfit-offline-report.json \
+  /tmp/launchfit-detailed-review.pdf
+```
+
 Check the generated report against the offline launch golden case:
 
 ```bash
