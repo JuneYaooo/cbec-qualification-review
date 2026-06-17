@@ -75,31 +75,19 @@
 
 ## 真实运行示例
 
-下面的示例不是手工 mock。输入图片、结构化 bundle、JSON 报告、核心卡片、PDF 和长截图都保存在仓库里，可以复现。
+下面的示例不是手工 mock。输入图片、结构化 bundle、JSON 报告、核心卡片和 PDF 都保存在仓库里，可以复现。
 
 ### 示例 1：Mantova 橄榄油进口到中国
-
-输入来自 `/Users/june/code/github/food_hack/test_data` 的 3 张商品实拍图，已复制到仓库内：
-
-| 正标 | 侧标 / 原产地信息 | 背标 / 营养与日期 |
-| --- | --- | --- |
-| <img src="./examples/real-runs/mantova-olive-oil-china-import/inputs/front-label.png" alt="Mantova 正标" width="220"> | <img src="./examples/real-runs/mantova-olive-oil-china-import/inputs/side-label-origin.png" alt="Mantova 侧标" width="220"> | <img src="./examples/real-runs/mantova-olive-oil-china-import/inputs/back-label-nutrition.png" alt="Mantova 背标" width="220"> |
-
-运行设置：
 
 - 商品：Fratelli Mantova Equilibrato Extra Virgin Olive Oil 250ml
 - 目标：从意大利进口到中国
 - 销售路径：`physical_trade`
-- 输入依据：用户提供图片，属于 T4；没有伪装成官方核验或自动 OCR 结果
+- 输入依据：3 张商品实拍图，属于 T4；没有伪装成官方核验或自动 OCR 结果
 - 产物：[输入 bundle](./examples/real-runs/mantova-olive-oil-china-import/input-bundle.json)、[结构化报告 JSON](./examples/real-runs/mantova-olive-oil-china-import/outputs/report.json)、[详细 PDF](./examples/real-runs/mantova-olive-oil-china-import/outputs/detailed-report.pdf)
 
 核心速览卡片：
 
 ![Mantova 橄榄油进口中国核心速览卡片](./examples/real-runs/mantova-olive-oil-china-import/outputs/core-card.png)
-
-详细报告长截图：
-
-![Mantova 橄榄油进口中国详细报告长截图](./examples/real-runs/mantova-olive-oil-china-import/outputs/detailed-report-long.png)
 
 ## 适合谁
 

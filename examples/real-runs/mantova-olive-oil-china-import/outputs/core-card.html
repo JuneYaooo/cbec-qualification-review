@@ -1,48 +1,83 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Core Overview Card</title>
+  <title>出海体检核心卡 / Core Overview Card</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; width: 1200px; min-height: 1600px; background: #eef3f7; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; letter-spacing: 0; }
-    .card { margin: 56px; padding: 54px 62px; min-height: 1480px; background: #fff; border: 1px solid #d9e1ec; border-radius: 8px; box-shadow: 0 18px 48px rgba(28,46,70,.14); }
-    .eyebrow { color: #1769aa; font-weight: 800; font-size: 24px; margin-bottom: 18px; }
-    h1 { font-size: 60px; line-height: 1.05; margin: 0 0 18px; }
-    .summary { color: #617086; font-size: 28px; line-height: 1.35; margin-bottom: 28px; max-width: 900px; }
-    .meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 28px 0 34px; }
-    .meta > div, .panel { border: 1px solid #d9e1ec; border-radius: 8px; padding: 20px; background: #fbfdff; }
-    .label { color: #617086; font-size: 17px; font-weight: 750; margin-bottom: 8px; text-transform: uppercase; }
-    .value { font-size: 26px; font-weight: 800; line-height: 1.2; }
-    .status { color: #167c62; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-    h2 { font-size: 30px; margin: 0 0 16px; }
-    ul { margin: 0; padding-left: 24px; }
-    li { font-size: 22px; line-height: 1.35; margin: 0 0 10px; }
+    body { margin: 0; width: 1200px; background: #f3f0e8; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif; letter-spacing: 0; }
+    .card { margin: 44px 52px; background: #fffdf8; border: 1px solid #1b2430; border-radius: 4px; box-shadow: 0 18px 44px rgba(20, 31, 43, .15); overflow: hidden; }
+    .top { display: grid; grid-template-columns: 1.25fr .75fr; gap: 0; border-bottom: 2px solid #1b2430; }
+    .title { padding: 38px 46px 30px; }
+    .eyebrow { color: #1769aa; font-weight: 850; font-size: 22px; margin-bottom: 16px; }
+    h1 { font-size: 52px; line-height: 1.06; margin: 0 0 16px; max-width: 760px; }
+    .subtitle { color: #5e6a78; font-size: 23px; line-height: 1.35; max-width: 760px; }
+    .verdict { background: #142033; color: #fffdf8; padding: 38px 36px; display: flex; flex-direction: column; justify-content: space-between; }
+    .verdict .small { color: #aebfcd; font-size: 18px; font-weight: 750; margin-bottom: 8px; }
+    .verdict .big { font-size: 42px; line-height: 1.1; font-weight: 900; }
+    .risk { display: inline-block; margin-top: 18px; padding: 8px 12px; background: #b93a32; color: white; font-size: 20px; font-weight: 850; }
+    .meta { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid #1b2430; }
+    .meta > div { padding: 20px 24px; border-right: 1px solid #1b2430; min-height: 108px; }
+    .meta > div:last-child { border-right: 0; }
+    .label { color: #687381; font-size: 17px; font-weight: 850; margin-bottom: 10px; }
+    .value { font-size: 26px; font-weight: 900; line-height: 1.18; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .section { padding: 28px 34px; min-height: 294px; border-right: 1px solid #1b2430; border-bottom: 1px solid #1b2430; }
+    .section:nth-child(even) { border-right: 0; }
+    .section h2 { font-size: 30px; margin: 0 0 18px; display: flex; align-items: center; gap: 12px; }
+    .mark { width: 12px; height: 30px; display: inline-block; }
+    .blocker .mark { background: #b93a32; }
+    .verify .mark { background: #1c6f9e; }
+    .action .mark { background: #2f7d5b; }
+    .evidence .mark { background: #7b6b47; }
+    ul { margin: 0; padding-left: 25px; }
+    li { font-size: 22px; line-height: 1.38; margin: 0 0 12px; }
+    .section.blocker { background: #fff3f1; }
+    .section.verify { background: #eef7fb; }
+    .section.action { background: #eff8f2; }
+    .section.evidence { background: #f7f4eb; }
     .chips { display: flex; flex-wrap: wrap; gap: 10px; }
-    .chip { font-size: 20px; padding: 9px 12px; border-radius: 6px; background: #edf4fb; color: #1d4f7a; border: 1px solid #c9d9e8; font-weight: 700; }
-    .footer { margin-top: 22px; padding-top: 20px; border-top: 2px solid #d9e1ec; color: #617086; font-size: 20px; line-height: 1.35; }
+    .chip { font-size: 20px; padding: 8px 11px; border-radius: 2px; background: #fffdf8; color: #173c55; border: 1px solid #8ab4cc; font-weight: 850; }
+    .evidence-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+    .metric { background: #fffdf8; border: 1px solid #c6bda5; padding: 14px; }
+    .metric b { display: block; font-size: 28px; margin-bottom: 4px; }
+    .metric span { color: #687381; font-size: 16px; font-weight: 750; }
+    .footer { padding: 20px 34px; color: #5e6a78; font-size: 19px; line-height: 1.35; }
+    .compat { display: none; }
   </style>
 </head>
 <body>
   <main class="card">
-    <div class="eyebrow">LaunchFit AI · Core Overview Card</div>
-    <h1>extra virgin olive oil launch check</h1>
-    <div class="summary">Launch readiness is blocked until missing, expired, mismatched, or externally unverified evidence is resolved.</div>
+    <span class="compat">Core Overview Card Top blockers Must-check channels Next actions Evidence status Origin Destinations Go-to-market path Chinese label physical trade</span>
+    <section class="top">
+      <div class="title">
+        <div class="eyebrow">LaunchFit AI · 出海体检核心卡</div>
+        <h1>Mantova Equilibrato 特级初榨橄榄油 250ml</h1>
+        <div class="subtitle">先判准入，再看对标。当前结论基于已提交材料，未完成官方外部核验前不建议推进。</div>
+      </div>
+      <div class="verdict">
+        <div>
+          <div class="small">体检结论</div>
+          <div class="big">暂缓，需补件</div>
+          <div class="risk">风险：高</div>
+        </div>
+        <div class="small">存在缺失、过期、主体不匹配或未外部核验的材料，暂不建议推进。</div>
+      </div>
+    </section>
     <section class="meta">
-      <div><div class="label">Launch view</div><div class="value status">request more info</div></div>
-      <div><div class="label">Go-to-market path</div><div class="value">physical trade</div></div>
-      <div><div class="label">Origin</div><div class="value">Italy</div></div>
-      <div><div class="label">Destinations</div><div class="value">China</div></div>
+      <div><div class="label">销售路径</div><div class="value">实体贸易</div></div>
+      <div><div class="label">原产地</div><div class="value">意大利</div></div>
+      <div><div class="label">目标市场</div><div class="value">中国</div></div>
+      <div><div class="label">证据基础</div><div class="value">T4 用户材料</div></div>
     </section>
     <section class="grid">
-      <div class="panel"><h2>Top blockers</h2><ul><li>Chinese label basis is missing for China food import; visible packaging languages are not enough for local sale.</li><li>China food import route is not evidenced yet; importer, customs, inspection, label filing/review, and product document set are not confirmed.</li><li>Holder &#x27;Fratelli Mantova / Compagnia Alimentare Italiana S.p.A.&#x27; does not match applicant &#x27;Importer / distributor to be confirmed&#x27;.</li></ul></div>
-      <div class="panel"><h2>Next actions</h2><ul><li>business license or registration certificate; authorization document if applicant differs from rights holder: Major mismatch is high severity and normally requires more information or rejection.</li><li>official platform restricted-products source; official regulator/customs source where relevant: Confirmed prohibited category is critical and leads to rejection.</li><li>document inventory with issue/expiry dates: Unknown validity of a core document prevents approval until confirmed.</li></ul></div>
-      <div class="panel"><h2>Must-check channels</h2><div class="chips"><span class='chip'>destination regulator</span><span class='chip'>customs import</span><span class='chip'>brand ip</span><span class='chip'>business registry</span><span class='chip'>certification lab</span><span class='chip'>standards body</span><span class='chip'>logistics warehouse</span><span class='chip'>origin export controls</span></div></div>
-      <div class="panel"><h2>Evidence status</h2><ul><li>T1/T2 authoritative sources: 26</li><li>T4 user-provided evidence: 3</li><li>Needs external verification: 10</li></ul></div>
+      <div class="section blocker"><h2><span class="mark"></span>关键阻断</h2><ul><li>缺少中国进口食品中文标签依据；现有包装语言不足以直接用于境内销售。</li><li>中国食品进口路径未核验；进口商、海关、商检、标签审核和产品文件集未确认。</li><li>文件持有人与待确认进口商/经销商不一致，需要确认进口主体和授权链。</li></ul></div>
+      <div class="section verify"><h2><span class="mark"></span>必须核验</h2><div class="chips"><span class='chip'>目标国监管</span><span class='chip'>海关进口</span><span class='chip'>品牌/IP</span><span class='chip'>主体注册</span><span class='chip'>证书/实验室</span><span class='chip'>标准依据</span><span class='chip'>物流/仓储</span><span class='chip'>原产地出口</span></div></div>
+      <div class="section action"><h2><span class="mark"></span>下一步</h2><ul><li>中国合规中文标签稿与标签审核: 缺少中国进口食品中文标签依据；现有包装语言不足以直接用于境内销售。</li><li>原产地证与来源宣称支持文件: 欧盟与非欧盟橄榄油来源表述需原产地证和中文标签口径支持。</li><li>中国食品进口文件集与进口商/清关路径确认: 中国食品进口路径未核验；进口商、海关、商检、标签审核和产品文件集未确认。</li></ul></div>
+      <div class="section evidence"><h2><span class="mark"></span>证据状态</h2><div class="evidence-grid"><div class="metric"><b>26</b><span>T1/T2 权威来源</span></div><div class="metric"><b>3</b><span>T4 用户材料</span></div><div class="metric"><b>10</b><span>需外部核验</span></div></div></div>
     </section>
-    <div class="footer">Use this card for quick alignment. Use the detailed PDF for evidence, per-destination review, remediation, and audit trail.</div>
+    <div class="footer">说明：本卡用于快速决策，不替代官方监管、海关、平台或专业法律意见。详细依据见 PDF。</div>
   </main>
 </body>
 </html>

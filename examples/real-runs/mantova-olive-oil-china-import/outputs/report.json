@@ -9,7 +9,7 @@
     "destination_market": "China",
     "business_model": "physical_import_distribution",
     "product_category": "food",
-    "subcategory": "extra virgin olive oil",
+    "subcategory": "特级初榨橄榄油",
     "brand_name": "Fratelli Mantova",
     "review_purpose": "pre-import launch readiness check for China",
     "requested_decision_deadline": "",
@@ -18,7 +18,8 @@
     "destination_markets": [
       "China"
     ],
-    "go_to_market_model": "physical_trade"
+    "go_to_market_model": "physical_trade",
+    "product_name": "Mantova Equilibrato 特级初榨橄榄油 250ml"
   },
   "decision": {
     "status": "request_more_info",
@@ -1008,7 +1009,7 @@
       "kind": "submitted_document",
       "reference": "examples/real-runs/mantova-olive-oil-china-import/inputs/front-label.png",
       "tier": "T4",
-      "checked_at": "2026-06-17",
+      "checked_at": "2026-06-18",
       "extracted_fact": "type=front label photo; holder=Fratelli Mantova / Compagnia Alimentare Italiana S.p.A.; issuer=user-provided product photo; scope=Front label shows Fratelli Mantova Equilibrato Olio Extra Vergine di Oliva, 250ml.",
       "confidence": "medium"
     },
@@ -1017,7 +1018,7 @@
       "kind": "submitted_document",
       "reference": "examples/real-runs/mantova-olive-oil-china-import/inputs/side-label-origin.png",
       "tier": "T4",
-      "checked_at": "2026-06-17",
+      "checked_at": "2026-06-18",
       "extracted_fact": "type=side origin and manufacturer label photo; holder=Compagnia Alimentare Italiana S.p.A.; issuer=user-provided product photo; scope=Side label states extra virgin olive oil, blend of olive oils of European Union origin and not of European Union origin, obtained directly from olives and solely by mechanical means, cold pressed, bottled in Italy.",
       "confidence": "medium"
     },
@@ -1026,7 +1027,7 @@
       "kind": "submitted_document",
       "reference": "examples/real-runs/mantova-olive-oil-china-import/inputs/back-label-nutrition.png",
       "tier": "T4",
-      "checked_at": "2026-06-17",
+      "checked_at": "2026-06-18",
       "extracted_fact": "type=nutrition and durability label photo; holder=Fratelli Mantova / Compagnia Alimentare Italiana S.p.A.; issuer=user-provided product photo; scope=Back label shows nutrition table, storage instruction, barcode 8006830260500, recycling marks, and best-before date visible as 17-09-2027.; expiry=2027-09-17",
       "confidence": "medium"
     }
@@ -1453,13 +1454,13 @@
       "details": "food-fda-allergens from category-food"
     },
     {
-      "timestamp": "2026-06-17",
+      "timestamp": "2026-06-18",
       "actor": "AI reviewer",
       "action": "generated_review_skeleton",
       "details": "Matched packs: global-baseline, country-CN-import, category-food"
     },
     {
-      "timestamp": "2026-06-17",
+      "timestamp": "2026-06-18",
       "actor": "AI reviewer",
       "action": "generated_offline_launch_report",
       "details": "Origin=Italy, destinations=1, documents=3, benchmarks=0, logistics_routes=0."

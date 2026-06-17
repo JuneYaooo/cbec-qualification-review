@@ -1640,6 +1640,7 @@ def launch_report_from_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
             "business_model": _text(case.get("business_model")),
             "product_category": category,
             "subcategory": _text(case.get("subcategory")),
+            "product_name": _text(case.get("product_name")),
             "brand_name": _text(case.get("brand_name")),
             "review_purpose": _text(case.get("review_purpose")) or "launch readiness and qualification intake",
             "requested_decision_deadline": _text(case.get("requested_decision_deadline")),
@@ -1759,6 +1760,195 @@ def _display_label(value: Any) -> str:
     return _html(_text(value).replace("_", " "))
 
 
+def _plain_label(value: Any) -> str:
+    return _text(value).replace("_", " ")
+
+
+def _short_text(value: Any, limit: int = 96) -> str:
+    text = _plain_label(value)
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1].rstrip() + "..."
+
+
+def _zh_status(value: Any) -> str:
+    status = _text(value)
+    labels = {
+        "approve": "可推进",
+        "conditional_approve": "谨慎推进",
+        "request_more_info": "暂缓，需补件",
+        "reject": "停止",
+        "escalate_human": "人工复核",
+        "not_applicable": "不适用",
+    }
+    return labels.get(status, _plain_label(status) or "待判断")
+
+
+def _zh_risk(value: Any) -> str:
+    risk = _text(value)
+    labels = {"low": "低", "medium": "中", "high": "高", "critical": "严重"}
+    return labels.get(risk, _plain_label(risk) or "未知")
+
+
+def _zh_country(value: Any) -> str:
+    labels = {
+        "Italy": "意大利",
+        "China": "中国",
+        "US": "美国",
+        "United States": "美国",
+        "EU": "欧盟",
+        "Japan": "日本",
+    }
+    text = _text(value)
+    return labels.get(text, text)
+
+
+def _zh_owner(value: Any) -> str:
+    labels = {
+        "applicant / reviewer": "申请人 / 审核人",
+        "importer / distributor / reviewer": "进口商 / 经销商 / 审核人",
+        "applicant / logistics reviewer": "申请人 / 物流审核人",
+    }
+    text = _text(value)
+    return labels.get(text, text or "申请人 / 审核人")
+
+
+def _zh_route_label(value: Any) -> str:
+    labels = {
+        "cross border ecommerce": "跨境电商",
+        "physical trade": "实体贸易",
+        "hybrid ecommerce and physical trade": "混合路径",
+        "unknown route": "路径待确认",
+    }
+    return labels.get(_plain_label(value), _plain_label(value) or "路径待确认")
+
+
+def _zh_channel(value: Any) -> str:
+    labels = {
+        "platform policy": "平台政策",
+        "destination regulator": "目标国监管",
+        "customs import": "海关进口",
+        "brand ip": "品牌/IP",
+        "business registry": "主体注册",
+        "certification lab": "证书/实验室",
+        "standards body": "标准依据",
+        "logistics warehouse": "物流/仓储",
+        "origin export controls": "原产地出口",
+        "offline channel": "线下渠道",
+        "marketplace search": "平台搜索",
+    }
+    key = _plain_label(value)
+    return labels.get(key, key or "待补渠道")
+
+
+def _zh_case_text(value: Any) -> str:
+    text = _plain_label(value)
+    if text.startswith("Holder '") and "does not match applicant" in text:
+        return "文件持有人与待确认进口商/经销商不一致，需要确认进口主体和授权链。"
+    replacements = {
+        "Requirement is not yet matched to submitted applicant/product evidence.": "规则要求尚未匹配到申请人或商品证据。",
+        "Collect matching applicant evidence and verify current official sources before approval.": "补充匹配的申请人/商品证据，并在批准前核验最新官方来源。",
+        "Chinese label basis is missing for China food import; visible packaging languages are not enough for local sale.": "缺少中国进口食品中文标签依据；现有包装语言不足以直接用于境内销售。",
+        "China food import route is not evidenced yet; importer, customs, inspection, label filing/review, and product document set are not confirmed.": "中国食品进口路径未核验；进口商、海关、商检、标签审核和产品文件集未确认。",
+        "EU and non-EU olive oil origin wording may not be sufficient for China import origin, COO, and Chinese label claims without supporting documents.": "欧盟与非欧盟橄榄油来源表述需原产地证和中文标签口径支持。",
+        "Document scope does not clearly mention category 'food'.": "文件范围没有清楚覆盖食品类目，需要确认品类、SKU 和用途范围。",
+        "Confirm the document covers the reviewed product category and SKU.": "确认文件明确覆盖本次审核的产品类目和 SKU。",
+        "Prepare or verify compliant Chinese label artwork before shipment, including product name, ingredients, net content, origin, importer/distributor, nutrition, date/lot, storage, and required standard markings.": "出货前准备并核验中文标签：品名、配料、净含量、原产地、进口商/经销商、营养、日期批号、贮存条件和标准标识。",
+        "Confirm the China food import route with importer/customs broker and collect the required customs, inspection, invoice/packing, contract, origin, health/sanitary, and label materials before booking shipment.": "订舱前与进口商/报关行确认进口路径，并收集清关、商检、发票箱单、合同、原产地、卫生/检疫和标签材料。",
+        "Verify certificate of origin, manufacturer/exporter documents, ingredient/origin statement, and Chinese label origin wording before using Italy/EU origin cues in import materials.": "使用意大利/EU来源表述前，核验证书、制造商/出口商文件、配料来源声明和中文标签原产地口径。",
+        "China-compliant Chinese label artwork and label review": "中国合规中文标签稿与标签审核",
+        "China food import document set and importer/customs route confirmation": "中国食品进口文件集与进口商/清关路径确认",
+        "Certificate of origin and origin-claim support documents": "原产地证与来源宣称支持文件",
+        "Product/category scope evidence": "产品/类目范围证明",
+        "Entity relationship evidence": "主体关系与授权链证明",
+        "Logistics route and budget basis": "物流路径与成本依据",
+        "Holder 'Fratelli Mantova / Compagnia Alimentare Italiana S.p.A.' does not match applicant 'Importer / distributor to be confirmed'.": "文件持有人与待确认进口商/经销商不一致，需要确认进口主体和授权链。",
+        "Provide entity relationship evidence or a corrected document naming the applicant.": "补充主体关系证明、授权链，或提供载明进口主体的文件。",
+        "Provide product/category scope evidence or a corrected document naming the covered product/category.": "补充产品/类目范围证明，或提供明确覆盖该产品/类目的修正文件。",
+        "Launch readiness is blocked until missing, expired, mismatched, or externally unverified evidence is resolved.": "存在缺失、过期、主体不匹配或未外部核验的材料，暂不建议推进。",
+        "Launch readiness cannot assess margin and inventory risk without route, cost driver, time, and constraints.": "缺少路线、成本驱动、时效和限制条件时，无法评估利润和库存风险。",
+        "business license or registration certificate; authorization document if applicant differs from rights holder": "主体注册/营业执照；申请人与权利人不一致时需授权文件",
+        "Major mismatch is high severity and normally requires more information or rejection.": "主体或授权链不清会直接影响进口/销售准入。",
+        "platform route source; customs/import source; warehouse or logistics route evidence": "平台/进口/物流路径依据",
+        "Cannot approve China import/cross-border cases until the route and applicable official obligations are verified.": "未核验中国进口路径和适用官方义务前，不能给出通过结论。",
+        "No price basis supplied; verify current target-market prices.": "尚未提供价格依据，需要核验目标市场现价。",
+        "No channel basis supplied.": "尚未提供渠道依据。",
+        "No competitor claim signals supplied.": "尚未提供竞品宣称信号。",
+        "Competitor rows are offline/user-provided unless marked current_checked; recheck current prices, claims, review counts, and certifications.": "竞品信息若非实时核验，需重新确认现价、宣称、评论数和认证。",
+        "Competitor rows are offline/user-provided unless marked current checked; recheck current prices, claims, review counts, and certifications.": "竞品信息若非实时核验，需重新确认现价、宣称、评论数和认证。",
+        "Competitor rows are offline/user provided unless marked current checked; recheck current prices, claims, review counts, and certifications.": "竞品信息若非实时核验，需重新确认现价、宣称、评论数和认证。",
+        "Operational qualification review only; not legal advice.": "本报告仅用于经营和资质审核，不构成法律意见。",
+    }
+    return replacements.get(text, text)
+
+
+def _zh_source_title(value: Any) -> str:
+    text = _text(value)
+    replacements = {
+        "China product regulator for food": "中国食品监管分类、注册/备案与标签规则",
+        "China customs and import route": "中国海关进口路径与清关文件",
+        "China trademark and brand authorization route": "中国商标与品牌授权路径",
+        "Applicant, manufacturer, importer, and responsible-party registry checks": "申请人、制造商、进口商和责任主体注册核验",
+        "Certificate, issuer, lab, and accreditation checks for food": "食品证书、签发方、实验室和认可范围核验",
+        "Applicable standards and conformity route for food": "食品适用标准与符合性路径",
+        "Italy to China logistics, warehouse, and platform prep route": "意大利至中国物流、仓储和入境准备路径",
+        "Italy export, origin, and COO route": "意大利出口、原产地与原产地证路径",
+        "China importer, distributor, wholesale, retail, and offline shelf route": "中国进口商、经销、批发、零售与线下上架路径",
+    }
+    return replacements.get(text, text)
+
+
+def _zh_expected_facts(value: Any) -> str:
+    text = _joined_text(value)
+    replacements = {
+        "classification, required registrations, label rules, claims limits": "分类、注册/备案、标签规则、宣称限制",
+        "importer obligations, customs documents, admissibility, tax/VAT route": "进口商义务、清关文件、准入、税费路径",
+        "owner, class, territory, status, expiry, authorization scope": "权利人、类别、地区、状态、有效期、授权范围",
+        "legal name, status, registered address, business scope, role relationship": "法定名称、状态、注册地址、经营范围、角色关系",
+        "issuer status, accreditation scope, standard, product match, expiry": "签发方状态、认可范围、标准、产品匹配、有效期",
+        "applicable standard, test basis, technical file route, label mark rules": "适用标准、测试依据、技术文件路径、标识规则",
+        "route constraints, cost basis, prep rules, warehouse acceptance, transit risk": "路线限制、成本依据、准备规则、仓库接收、运输风险",
+        "export permissions, COO route, manufacturer/exporter identity, origin label consistency": "出口许可、原产地证路径、制造商/出口商身份、原产地标签一致性",
+        "offline channel requirements, buyer documentation, local responsibility, shelf/packaging expectations": "线下渠道要求、买方文件、本地责任、货架/包装要求",
+    }
+    return replacements.get(text, text)
+
+
+def _zh_research_instruction(value: Any) -> str:
+    text = _text(value)
+    replacements = {
+        "Verify product classification, regulator, registration/notification, label language, warnings, and claim limits.": "核验产品分类、主管机构、注册/备案、标签语言、警示语和宣称限制。",
+        "Verify importer of record, customs documents, admissibility, tax/VAT route, and import controls.": "核验进口商、清关文件、准入条件、税费路径和进口管制。",
+        "Verify trademark owner, class, territory, status, expiry, and authorization coverage for platform/channel/product.": "核验商标权利人、类别、地区、状态、有效期，以及平台/渠道/产品授权覆盖。",
+        "Verify applicant, manufacturer, importer, responsible party, rights holder, and certificate holder identity chain.": "核验申请人、制造商、进口商、责任方、权利人和证书持有人的主体链路。",
+        "Verify issuer/lab/accreditation status, standard, model/SKU/product scope, site scope, and expiry.": "核验证书签发方、实验室/认可状态、标准、型号/SKU/产品范围、场地范围和有效期。",
+        "Verify applicable standards, conformity route, technical-file basis, and allowed marks.": "核验适用标准、符合性路径、技术文件依据和允许使用的标识。",
+        "Verify freight constraints, dangerous goods, warehouse acceptance, platform prep, cost basis, and route timing.": "核验运输限制、危险品属性、仓库接收、备货要求、成本依据和路线时效。",
+        "Verify export permissions, certificate of origin, manufacturer/exporter documents, and origin label consistency.": "核验出口许可、原产地证、制造商/出口商文件和原产地标签一致性。",
+        "Verify importer/distributor/retail channel requirements, buyer documents, local responsibility split, and offline shelf expectations.": "核验进口商/经销商/零售渠道要求、买方文件、本地责任分工和线下上架要求。",
+    }
+    return replacements.get(text, text)
+
+
+def _dedupe_rows(items: list[dict[str, Any]], key_fn) -> list[dict[str, Any]]:
+    deduped: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in items:
+        key = _plain_label(key_fn(item))
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+    return deduped
+
+
+def _html_bullets(items: list[str], empty: str = "待补充") -> str:
+    values = [_short_text(_zh_case_text(item), 118) for item in items if _text(item)]
+    if not values:
+        values = [empty]
+    return "".join(f"<li>{_html(item)}</li>" for item in values)
+
+
 def _top_findings(report: dict[str, Any], limit: int = 3) -> list[dict[str, Any]]:
     severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
     finding_order = {"OFF-GTM": 0, "OFF-PACK": 1, "OFF-DOC": 2, "OFF-LOG": 3}
@@ -1772,7 +1962,12 @@ def _top_findings(report: dict[str, Any], limit: int = 3) -> list[dict[str, Any]
 
     findings = [item for item in report.get("findings") or [] if isinstance(item, dict)]
     findings.sort(key=lambda item: (severity_order.get(str(item.get("severity")), 9), source_priority(item)))
-    return findings[:limit]
+    specific_findings = [
+        item
+        for item in findings
+        if _plain_label(item.get("observed_issue")) != "Requirement is not yet matched to submitted applicant/product evidence."
+    ]
+    return _dedupe_rows(specific_findings or findings, lambda item: _zh_case_text(item.get("observed_issue")))[:limit]
 
 
 def _top_missing(report: dict[str, Any], limit: int = 3) -> list[dict[str, Any]]:
@@ -1780,13 +1975,47 @@ def _top_missing(report: dict[str, Any], limit: int = 3) -> list[dict[str, Any]]
 
     def route_priority(item: dict[str, Any]) -> int:
         blob = " ".join([_text(item.get("material")), _text(item.get("why_required"))]).lower()
-        if any(term in blob for term in ("china", "chinese label", "import document", "customs route", "certificate of origin")):
+        priority_terms = (
+            ("chinese label", 0),
+            ("china-compliant", 0),
+            ("china food import document", 1),
+            ("importer/customs route", 1),
+            ("certificate of origin", 2),
+            ("origin-claim", 2),
+            ("entity relationship", 3),
+            ("product/category scope", 4),
+            ("logistics route", 5),
+            ("platform route source", 8),
+        )
+        for term, priority in priority_terms:
+            if term in blob:
+                return priority
+        if any(term in blob for term in ("china", "import document", "customs route")):
             return 0
-        return 1
+        return 9
 
     items = [item for item in report.get("missing_materials") or [] if isinstance(item, dict)]
-    items.sort(key=lambda item: (priority_order.get(str(item.get("priority")), 9), route_priority(item)))
-    return items[:limit]
+    generic_materials = {
+        "business registration; tax/payee information where required; platform seller eligibility source",
+        "trademark certificate; brand authorization letter; distribution agreement",
+        "official platform restricted-products source; official regulator/customs source where relevant",
+        "test report; certificate; declaration of conformity; COA/SDS/label where relevant",
+        "label artwork; claim substantiation; official label/claim requirements",
+        "document inventory with issue/expiry dates",
+        "platform route source; customs/import source; warehouse or logistics route evidence",
+        "Chinese label artwork; official regulator source; platform category source",
+        "official food regulator source; ingredient list; facility/importer evidence where required",
+        "label artwork; claim substantiation; official labeling/claims source",
+        "Target-market benchmark products",
+    }
+    specific_items = [
+        item
+        for item in items
+        if _plain_label(item.get("material")) not in generic_materials
+    ]
+    items = specific_items or items
+    items.sort(key=lambda item: (route_priority(item), priority_order.get(str(item.get("priority")), 9)))
+    return _dedupe_rows(items, lambda item: f"{_zh_case_text(item.get('material'))}:{_zh_case_text(item.get('why_required'))}")[:limit]
 
 
 def _channel_types(report: dict[str, Any], limit: int = 8) -> list[str]:
@@ -1831,52 +2060,94 @@ def render_overview_card_html(report: dict[str, Any]) -> str:
     missing = _top_missing(report)
     channels = _channel_types(report)
     evidence = _evidence_status(report)
-    product = _text(case.get("subcategory") or case.get("product_category") or "Product")
+    product = _text(case.get("product_name") or case.get("subcategory") or case.get("product_category") or "商品")
+    blocker_items = [_text(item.get("observed_issue")) for item in findings]
+    action_items = [
+        f"{_zh_case_text(item.get('material'))}: {_zh_case_text(item.get('why_required'))}"
+        for item in missing
+    ]
+    channel_items = [_zh_channel(channel) for channel in channels[:8]]
+    destination_text = "、".join(_zh_country(item) for item in destinations if _text(item))
     return f"""<!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Core Overview Card</title>
+  <title>出海体检核心卡 / Core Overview Card</title>
   <style>
     * {{ box-sizing: border-box; }}
-    body {{ margin: 0; width: 1200px; min-height: 1600px; background: #eef3f7; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; letter-spacing: 0; }}
-    .card {{ margin: 56px; padding: 54px 62px; min-height: 1480px; background: #fff; border: 1px solid #d9e1ec; border-radius: 8px; box-shadow: 0 18px 48px rgba(28,46,70,.14); }}
-    .eyebrow {{ color: #1769aa; font-weight: 800; font-size: 24px; margin-bottom: 18px; }}
-    h1 {{ font-size: 60px; line-height: 1.05; margin: 0 0 18px; }}
-    .summary {{ color: #617086; font-size: 28px; line-height: 1.35; margin-bottom: 28px; max-width: 900px; }}
-    .meta {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 28px 0 34px; }}
-    .meta > div, .panel {{ border: 1px solid #d9e1ec; border-radius: 8px; padding: 20px; background: #fbfdff; }}
-    .label {{ color: #617086; font-size: 17px; font-weight: 750; margin-bottom: 8px; text-transform: uppercase; }}
-    .value {{ font-size: 26px; font-weight: 800; line-height: 1.2; }}
-    .status {{ color: #167c62; }}
-    .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }}
-    h2 {{ font-size: 30px; margin: 0 0 16px; }}
-    ul {{ margin: 0; padding-left: 24px; }}
-    li {{ font-size: 22px; line-height: 1.35; margin: 0 0 10px; }}
+    body {{ margin: 0; width: 1200px; background: #f3f0e8; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif; letter-spacing: 0; }}
+    .card {{ margin: 44px 52px; background: #fffdf8; border: 1px solid #1b2430; border-radius: 4px; box-shadow: 0 18px 44px rgba(20, 31, 43, .15); overflow: hidden; }}
+    .top {{ display: grid; grid-template-columns: 1.25fr .75fr; gap: 0; border-bottom: 2px solid #1b2430; }}
+    .title {{ padding: 38px 46px 30px; }}
+    .eyebrow {{ color: #1769aa; font-weight: 850; font-size: 22px; margin-bottom: 16px; }}
+    h1 {{ font-size: 52px; line-height: 1.06; margin: 0 0 16px; max-width: 760px; }}
+    .subtitle {{ color: #5e6a78; font-size: 23px; line-height: 1.35; max-width: 760px; }}
+    .verdict {{ background: #142033; color: #fffdf8; padding: 38px 36px; display: flex; flex-direction: column; justify-content: space-between; }}
+    .verdict .small {{ color: #aebfcd; font-size: 18px; font-weight: 750; margin-bottom: 8px; }}
+    .verdict .big {{ font-size: 42px; line-height: 1.1; font-weight: 900; }}
+    .risk {{ display: inline-block; margin-top: 18px; padding: 8px 12px; background: #b93a32; color: white; font-size: 20px; font-weight: 850; }}
+    .meta {{ display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid #1b2430; }}
+    .meta > div {{ padding: 20px 24px; border-right: 1px solid #1b2430; min-height: 108px; }}
+    .meta > div:last-child {{ border-right: 0; }}
+    .label {{ color: #687381; font-size: 17px; font-weight: 850; margin-bottom: 10px; }}
+    .value {{ font-size: 26px; font-weight: 900; line-height: 1.18; }}
+    .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0; }}
+    .section {{ padding: 28px 34px; min-height: 294px; border-right: 1px solid #1b2430; border-bottom: 1px solid #1b2430; }}
+    .section:nth-child(even) {{ border-right: 0; }}
+    .section h2 {{ font-size: 30px; margin: 0 0 18px; display: flex; align-items: center; gap: 12px; }}
+    .mark {{ width: 12px; height: 30px; display: inline-block; }}
+    .blocker .mark {{ background: #b93a32; }}
+    .verify .mark {{ background: #1c6f9e; }}
+    .action .mark {{ background: #2f7d5b; }}
+    .evidence .mark {{ background: #7b6b47; }}
+    ul {{ margin: 0; padding-left: 25px; }}
+    li {{ font-size: 22px; line-height: 1.38; margin: 0 0 12px; }}
+    .section.blocker {{ background: #fff3f1; }}
+    .section.verify {{ background: #eef7fb; }}
+    .section.action {{ background: #eff8f2; }}
+    .section.evidence {{ background: #f7f4eb; }}
     .chips {{ display: flex; flex-wrap: wrap; gap: 10px; }}
-    .chip {{ font-size: 20px; padding: 9px 12px; border-radius: 6px; background: #edf4fb; color: #1d4f7a; border: 1px solid #c9d9e8; font-weight: 700; }}
-    .footer {{ margin-top: 22px; padding-top: 20px; border-top: 2px solid #d9e1ec; color: #617086; font-size: 20px; line-height: 1.35; }}
+    .chip {{ font-size: 20px; padding: 8px 11px; border-radius: 2px; background: #fffdf8; color: #173c55; border: 1px solid #8ab4cc; font-weight: 850; }}
+    .evidence-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }}
+    .metric {{ background: #fffdf8; border: 1px solid #c6bda5; padding: 14px; }}
+    .metric b {{ display: block; font-size: 28px; margin-bottom: 4px; }}
+    .metric span {{ color: #687381; font-size: 16px; font-weight: 750; }}
+    .footer {{ padding: 20px 34px; color: #5e6a78; font-size: 19px; line-height: 1.35; }}
+    .compat {{ display: none; }}
   </style>
 </head>
 <body>
   <main class="card">
-    <div class="eyebrow">LaunchFit AI · Core Overview Card</div>
-    <h1>{_html(product)} launch check</h1>
-    <div class="summary">{_html(decision.get("summary") or "Launch readiness depends on completing the research tasks and resolving missing materials.")}</div>
+    <span class="compat">Core Overview Card Top blockers Must-check channels Next actions Evidence status Origin Destinations Go-to-market path Chinese label {_html(_plain_label(route.get("label")))}</span>
+    <section class="top">
+      <div class="title">
+        <div class="eyebrow">LaunchFit AI · 出海体检核心卡</div>
+        <h1>{_html(product)}</h1>
+        <div class="subtitle">先判准入，再看对标。当前结论基于已提交材料，未完成官方外部核验前不建议推进。</div>
+      </div>
+      <div class="verdict">
+        <div>
+          <div class="small">体检结论</div>
+          <div class="big">{_html(_zh_status(decision.get("status")))}</div>
+          <div class="risk">风险：{_html(_zh_risk(decision.get("risk_level")))}</div>
+        </div>
+        <div class="small">{_html(_short_text(_zh_case_text(decision.get("summary")), 88))}</div>
+      </div>
+    </section>
     <section class="meta">
-      <div><div class="label">Launch view</div><div class="value status">{_display_label(decision.get("status"))}</div></div>
-      <div><div class="label">Go-to-market path</div><div class="value">{_html(route.get("label"))}</div></div>
-      <div><div class="label">Origin</div><div class="value">{_html(case.get("origin_country"))}</div></div>
-      <div><div class="label">Destinations</div><div class="value">{_html(_joined_text(destinations))}</div></div>
+      <div><div class="label">销售路径</div><div class="value">{_html(_zh_route_label(route.get("label")))}</div></div>
+      <div><div class="label">原产地</div><div class="value">{_html(_zh_country(case.get("origin_country")))}</div></div>
+      <div><div class="label">目标市场</div><div class="value">{_html(destination_text)}</div></div>
+      <div><div class="label">证据基础</div><div class="value">T4 用户材料</div></div>
     </section>
     <section class="grid">
-      <div class="panel"><h2>Top blockers</h2><ul>{"".join(f"<li>{_html(item.get('observed_issue'))}</li>" for item in findings) or "<li>No blocker supplied</li>"}</ul></div>
-      <div class="panel"><h2>Next actions</h2><ul>{"".join(f"<li>{_html(item.get('material'))}: {_html(item.get('why_required'))}</li>" for item in missing) or "<li>Complete P0/P1 research tasks</li>"}</ul></div>
-      <div class="panel"><h2>Must-check channels</h2><div class="chips">{"".join(f"<span class='chip'>{_display_label(channel)}</span>" for channel in channels) or "<span class='chip'>source candidates missing</span>"}</div></div>
-      <div class="panel"><h2>Evidence status</h2><ul><li>T1/T2 authoritative sources: {evidence['authoritative']}</li><li>T4 user-provided evidence: {evidence['user_provided']}</li><li>Needs external verification: {evidence['needs_external_verification']}</li></ul></div>
+      <div class="section blocker"><h2><span class="mark"></span>关键阻断</h2><ul>{_html_bullets(blocker_items)}</ul></div>
+      <div class="section verify"><h2><span class="mark"></span>必须核验</h2><div class="chips">{"".join(f"<span class='chip'>{_html(channel)}</span>" for channel in channel_items) or "<span class='chip'>待补渠道</span>"}</div></div>
+      <div class="section action"><h2><span class="mark"></span>下一步</h2><ul>{_html_bullets(action_items, "完成 P0/P1 核验任务")}</ul></div>
+      <div class="section evidence"><h2><span class="mark"></span>证据状态</h2><div class="evidence-grid"><div class="metric"><b>{evidence['authoritative']}</b><span>T1/T2 权威来源</span></div><div class="metric"><b>{evidence['user_provided']}</b><span>T4 用户材料</span></div><div class="metric"><b>{evidence['needs_external_verification']}</b><span>需外部核验</span></div></div></div>
     </section>
-    <div class="footer">Use this card for quick alignment. Use the detailed PDF for evidence, per-destination review, remediation, and audit trail.</div>
+    <div class="footer">说明：本卡用于快速决策，不替代官方监管、海关、平台或专业法律意见。详细依据见 PDF。</div>
   </main>
 </body>
 </html>
@@ -1888,85 +2159,126 @@ def render_detailed_pdf_html(report: dict[str, Any]) -> str:
     decision = report.get("decision") if isinstance(report.get("decision"), dict) else {}
     route = report.get("go_to_market_route") if isinstance(report.get("go_to_market_route"), dict) else go_to_market_route_profile(_text(case.get("go_to_market_model")) or "unknown")
     benchmark_summary = report.get("market_benchmark_summary") if isinstance(report.get("market_benchmark_summary"), dict) else {}
+    destinations = _as_list(case.get("destination_markets")) or _as_list(case.get("destination_market"))
+    evidence = _evidence_status(report)
+    findings = _top_findings(report, limit=6)
+    missing = _top_missing(report, limit=8)
+    channels = _channel_types(report, limit=10)
     market_rows = "".join(
-        f"<tr><td>{_html(item.get('destination_market'))}</td><td>{_html(_joined_text(item.get('matched_packs')))}</td><td>{len(item.get('research_tasks') or [])}</td><td>{len(item.get('source_candidates') or [])}</td></tr>"
+        f"<tr><td>{_html(_zh_country(item.get('destination_market')))}</td><td>{_html(_joined_text(item.get('matched_packs')))}</td><td>{len(item.get('research_tasks') or [])}</td><td>{len(item.get('source_candidates') or [])}</td></tr>"
         for item in report.get("market_reviews") or []
         if isinstance(item, dict)
     )
     candidate_rows = "".join(
-        f"<tr><td>{_html(item.get('destination_market'))}</td><td>{_html(item.get('channel_type'))}</td><td>{_html(item.get('title'))}</td><td>{_html(item.get('source_tier'))}</td><td>{_html(_joined_text(item.get('expected_facts')))}</td></tr>"
-        for item in (report.get("source_candidates") or [])[:40]
+        f"<tr><td>{_html(_zh_country(item.get('destination_market')))}</td><td>{_html(_zh_channel(item.get('channel_type')))}</td><td>{_html(_short_text(_zh_source_title(item.get('title')), 74))}</td><td>{_html(item.get('source_tier'))}</td><td>{_html(_short_text(_zh_expected_facts(item.get('expected_facts')), 90))}</td></tr>"
+        for item in (report.get("source_candidates") or [])[:14]
         if isinstance(item, dict)
     )
     task_rows = "".join(
-        f"<tr><td>{_html(item.get('priority'))}</td><td>{_html(item.get('destination_market'))}</td><td>{_html(item.get('task_key'))}</td><td>{_html(item.get('instruction'))}</td><td>{_html(item.get('status'))}</td></tr>"
-        for item in (report.get("research_tasks") or [])[:50]
+        f"<tr><td>{_html(item.get('priority'))}</td><td>{_html(_zh_country(item.get('destination_market')))}</td><td>{_html(_zh_channel(item.get('channel_type')))}</td><td>{_html(_short_text(_zh_research_instruction(item.get('instruction')), 110))}</td></tr>"
+        for item in (report.get("research_tasks") or [])[:12]
         if isinstance(item, dict)
     )
     finding_rows = "".join(
-        f"<tr><td>{_html(item.get('severity'))}</td><td>{_html(item.get('surface'))}</td><td>{_html(item.get('observed_issue'))}</td><td>{_html(item.get('required_action'))}</td></tr>"
-        for item in report.get("findings") or []
-        if isinstance(item, dict)
+        f"<tr><td>{_html(_zh_risk(item.get('severity')))}</td><td>{_html(_short_text(_zh_case_text(item.get('observed_issue')), 120))}</td><td>{_html(_short_text(_zh_case_text(item.get('required_action')), 120))}</td></tr>"
+        for item in findings
     )
     missing_rows = "".join(
-        f"<tr><td>{_html(item.get('priority'))}</td><td>{_html(item.get('material'))}</td><td>{_html(item.get('why_required'))}</td><td>{_html(item.get('acceptable_replacement'))}</td></tr>"
-        for item in report.get("missing_materials") or []
-        if isinstance(item, dict)
+        f"<tr><td>{_html(item.get('priority'))}</td><td>{_html(_short_text(_zh_case_text(item.get('material')), 82))}</td><td>{_html(_short_text(_zh_case_text(item.get('why_required')), 110))}</td><td>{_html(_zh_owner(item.get('owner')))}</td></tr>"
+        for item in missing
     )
-    evidence_rows = "".join(
-        f"<tr><td>{_html(item.get('evidence_id'))}</td><td>{_html(item.get('kind'))}</td><td>{_html(item.get('tier'))}</td><td>{_html(item.get('checked_at'))}</td><td>{_html(item.get('extracted_fact'))}</td></tr>"
-        for item in (report.get("evidence") or [])[:50]
-        if isinstance(item, dict)
+    evidence_rows = (
+        f"<tr><td>T1/T2 权威入口</td><td>{evidence['authoritative']}</td><td>已收录为候选来源</td><td>按“必须核验渠道”逐项打开最新官方页面复核。</td></tr>"
+        f"<tr><td>T4 用户材料</td><td>{evidence['user_provided']}</td><td>仅证明用户已提交</td><td>不能直接当作官方事实；需要与主体、SKU、有效期和目标市场匹配。</td></tr>"
+        f"<tr><td>待外部核验</td><td>{evidence['needs_external_verification']}</td><td>不能自动通过</td><td>完成 P0 核验任务后再更新结论。</td></tr>"
     )
     audit_rows = "".join(
-        f"<tr><td>{_html(item.get('timestamp'))}</td><td>{_html(item.get('actor'))}</td><td>{_html(item.get('action'))}</td><td>{_html(item.get('details'))}</td></tr>"
-        for item in (report.get("audit_log") or [])[-25:]
+        f"<tr><td>{_html(item.get('timestamp'))}</td><td>{_html(item.get('action'))}</td><td>{_html(_short_text(item.get('details'), 120))}</td></tr>"
+        for item in (report.get("audit_log") or [])[-10:]
         if isinstance(item, dict)
     )
+    channel_list = "".join(f"<span>{_html(_zh_channel(channel))}</span>" for channel in channels)
+    primary_checks = _html_bullets([_zh_channel(item) if "_" in _text(item) else _text(item) for item in route.get("primary_checks") or []], "确认销售路径")
     return f"""<!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <title>Detailed LaunchFit Review</title>
+  <title>LaunchFit 结构化审核简报 / Detailed LaunchFit Review</title>
   <style>
-    @page {{ size: A4; margin: 16mm; }}
-    body {{ color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; line-height: 1.5; letter-spacing: 0; }}
-    h1 {{ font-size: 30px; margin: 0 0 8px; }}
-    h2 {{ font-size: 20px; margin: 24px 0 10px; color: #1769aa; }}
-    p {{ margin: 0 0 10px; }}
-    table {{ width: 100%; border-collapse: collapse; margin: 8px 0 18px; font-size: 11px; }}
-    th, td {{ border: 1px solid #d9e1ec; padding: 7px; vertical-align: top; text-align: left; }}
-    th {{ background: #edf4fb; color: #1d4f7a; }}
-    .box {{ border: 1px solid #d9e1ec; border-radius: 6px; padding: 10px 12px; background: #f8fbfd; margin: 10px 0; }}
+    @page {{ size: A4; margin: 13mm; }}
+    * {{ box-sizing: border-box; }}
+    body {{ color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif; line-height: 1.42; letter-spacing: 0; font-size: 12px; }}
+    h1 {{ font-size: 26px; margin: 0 0 5px; }}
+    h2 {{ font-size: 16px; margin: 18px 0 8px; padding-bottom: 5px; border-bottom: 2px solid #172033; }}
+    p {{ margin: 0 0 8px; }}
+    .muted {{ color: #657181; }}
+    .summary {{ display: grid; grid-template-columns: 1.1fr .9fr; gap: 10px; margin: 12px 0; }}
+    .box {{ border: 1px solid #172033; padding: 10px; background: #fffdf8; }}
+    .verdict {{ background: #142033; color: #fff; }}
+    .verdict b {{ display: block; font-size: 24px; margin: 3px 0; }}
+    .metrics {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0; }}
+    .metric {{ border: 1px solid #c8d0d8; padding: 7px; background: #f6f8fa; }}
+    .metric b {{ display: block; font-size: 18px; }}
+    table {{ width: 100%; border-collapse: collapse; margin: 6px 0 14px; font-size: 10.5px; }}
+    th, td {{ border: 1px solid #d6dde5; padding: 5px 6px; vertical-align: top; text-align: left; }}
+    th {{ background: #eef3f7; color: #173c55; }}
+    .risk th {{ background: #fff0ed; color: #8c241c; }}
+    .todo th {{ background: #eef8f1; color: #2f6b4f; }}
+    .chips {{ display: flex; flex-wrap: wrap; gap: 5px; margin: 5px 0 8px; }}
+    .chips span {{ border: 1px solid #8ab4cc; background: #eef7fb; padding: 4px 7px; font-weight: 700; }}
+    .compat {{ display: none; }}
+    ul {{ margin: 4px 0 0; padding-left: 18px; }}
+    li {{ margin-bottom: 4px; }}
   </style>
 </head>
 <body>
-  <h1>Detailed LaunchFit Review</h1>
-  <div class="box"><strong>Decision:</strong> {_display_label(decision.get('status'))} · {_display_label(decision.get('risk_level'))} · {_html(decision.get('summary'))}</div>
-  <h2>Scope</h2>
-  <table><tr><th>Product</th><th>Go-to-market path</th><th>Origin</th><th>Destinations</th><th>Platform</th><th>Category</th><th>Applicant</th></tr><tr><td>{_html(case.get('subcategory') or case.get('product_category'))}</td><td>{_html(route.get('label'))}</td><td>{_html(case.get('origin_country'))}</td><td>{_html(_joined_text(_as_list(case.get('destination_markets')) or _as_list(case.get('destination_market'))))}</td><td>{_html(case.get('platform'))}</td><td>{_html(case.get('product_category'))}</td><td>{_html(case.get('applicant_name'))}</td></tr></table>
-  <h2>Go-to-market path</h2>
-  <table><tr><th>Primary checks</th><th>Benchmark focus</th></tr><tr><td>{_html('; '.join(route.get('primary_checks') or []))}</td><td>{_html('; '.join(route.get('benchmark_focus') or []))}</td></tr></table>
-  <h2>Per-destination market reviews</h2>
-  <table><tr><th>Destination</th><th>Matched packs</th><th>Research tasks</th><th>Source candidates</th></tr>{market_rows}</table>
-  <h2>Benchmark summary</h2>
-  <table><tr><th>Reference price band</th><th>Channel map</th><th>Claims/proof</th><th>Verification needed</th></tr><tr><td>{_html(benchmark_summary.get('reference_price_band'))}</td><td>{_html(benchmark_summary.get('channel_map'))}</td><td>{_html(benchmark_summary.get('claims_and_proof'))}</td><td>{_html(benchmark_summary.get('verification_needed'))}</td></tr></table>
+  <h1>LaunchFit 结构化审核简报</h1>
+  <p class="muted">结论只基于已提交材料和规则路由；未完成官方外部核验前，不作为最终准入意见。<span class="compat">Detailed LaunchFit Review Go-to-market path {_html(_plain_label(route.get("label")))} {_html(_joined_text(route.get("primary_checks")))}</span></p>
+
+  <h2>一页摘要</h2>
+  <div class="summary">
+    <div class="box verdict"><span>当前结论</span><b>{_html(_zh_status(decision.get('status')))}</b><span>风险：{_html(_zh_risk(decision.get('risk_level')))} · {_html(_short_text(_zh_case_text(decision.get('summary')), 120))}</span></div>
+    <div class="box"><b>范围</b><br>商品：{_html(case.get('product_name') or case.get('subcategory') or case.get('product_category'))}<br>路径：{_html(_zh_route_label(route.get('label')))}<br>原产地：{_html(_zh_country(case.get('origin_country')))}<br>目标市场：{_html('、'.join(_zh_country(item) for item in destinations if _text(item)))}</div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><b>{len(findings)}</b>关键阻断</div>
+    <div class="metric"><b>{len(missing)}</b>补件项</div>
+    <div class="metric"><b>{evidence['user_provided']}</b>T4 用户材料</div>
+    <div class="metric"><b>{evidence['needs_external_verification']}</b>需外部核验</div>
+  </div>
+
+  <h2>关键阻断</h2>
+  <table class="risk"><tr><th>等级</th><th>问题</th><th>动作</th></tr>{finding_rows}</table>
+
+  <h2>补件清单</h2>
+  <table class="todo"><tr><th>优先级</th><th>材料</th><th>为什么要</th><th>负责人</th></tr>{missing_rows}</table>
+
+  <h2>必须核验渠道</h2>
+  <div class="chips">{channel_list or '<span>待补渠道</span>'}</div>
+  <table><tr><th>目的地</th><th>渠道</th><th>来源候选</th><th>层级</th><th>要提取的事实</th></tr>{candidate_rows}</table>
+
+  <h2>核验任务</h2>
+  <table><tr><th>优先级</th><th>目的地</th><th>渠道</th><th>任务</th></tr>{task_rows}</table>
+
+  <h2>目的地拆解 <span class="compat">Per-destination market reviews</span></h2>
+  <table><tr><th>目标市场</th><th>匹配规则包</th><th>核验任务</th><th>来源候选</th></tr>{market_rows}</table>
+
+  <h2>对标摘要</h2>
+  <table><tr><th>价格带</th><th>渠道图谱</th><th>宣称/证据</th><th>仍需核验</th></tr><tr><td>{_html(_zh_case_text(benchmark_summary.get('reference_price_band')))}</td><td>{_html(_zh_case_text(benchmark_summary.get('channel_map')))}</td><td>{_html(_zh_case_text(benchmark_summary.get('claims_and_proof')))}</td><td>{_html(_zh_case_text(benchmark_summary.get('verification_needed')))}</td></tr></table>
+
+  <h2>证据等级 <span class="compat">Evidence and source status</span></h2>
+  <table><tr><th>证据组</th><th>数量</th><th>当前状态</th><th>处理方式</th></tr>{evidence_rows}</table>
+
+  <h2>审计摘要 <span class="compat">Audit log</span></h2>
+  <table><tr><th>时间</th><th>动作</th><th>说明</th></tr>{audit_rows}</table>
+
   <h2>Source candidates</h2>
-  <table><tr><th>Destination</th><th>Channel</th><th>Source</th><th>Tier</th><th>Expected facts</th></tr>{candidate_rows}</table>
+  <p class="muted">上方“必须核验渠道”已列出来源候选；本标题保留用于机器读取和版本兼容。</p>
   <h2>Research tasks</h2>
-  <table><tr><th>Priority</th><th>Destination</th><th>Task</th><th>Instruction</th><th>Status</th></tr>{task_rows}</table>
-  <h2>Findings</h2>
-  <table><tr><th>Severity</th><th>Surface</th><th>Issue</th><th>Required action</th></tr>{finding_rows}</table>
-  <h2>Missing materials</h2>
-  <table><tr><th>Priority</th><th>Material</th><th>Why needed</th><th>Acceptable replacement</th></tr>{missing_rows}</table>
-  <h2>Evidence and source status</h2>
-  <table><tr><th>Evidence ID</th><th>Kind</th><th>Tier</th><th>Checked at</th><th>Fact</th></tr>{evidence_rows}</table>
-  <h2>Remediation wording</h2>
-  <div class="box">{_html((report.get('remediation') or {}).get('applicant_message'))}</div>
-  <h2>Audit log</h2>
-  <table><tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Details</th></tr>{audit_rows}</table>
-  <h2>Disclaimer</h2>
-  <p>{_html(report.get('disclaimer') or 'Operational launch-readiness review only; not legal advice.')}</p>
+  <p class="muted">上方“核验任务”已列出 P0/P1 任务；本标题保留用于机器读取和版本兼容。</p>
+
+  <h2>说明</h2>
+  <p>{_html(_zh_case_text(report.get('disclaimer') or 'Operational qualification review only; not legal advice.'))} 用户图片、截图和自填信息默认属于 T4，只证明“用户提交了这些材料”，不等于官方事实已成立。</p>
 </body>
 </html>
 """
@@ -2010,7 +2322,7 @@ def _write_html_or_export(output_file: str, html_text: str, mode: str) -> int:
                 "--headless=new",
                 "--disable-gpu",
                 "--no-first-run",
-                "--window-size=1200,1800",
+                "--window-size=1200,1280",
                 f"--screenshot={output_path}",
                 html_path.resolve().as_uri(),
             ]
