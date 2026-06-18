@@ -74,22 +74,6 @@ If available, add certificates, test reports, brand authorization, packaging ima
 - **Pricing and logistics without evidence**: who are the competitors, where is the price band, and will freight or warehousing destroy margin?
 - **Inconsistent team review**: reviewers rely on experience, but supplement requests, evidence records, and audit trails are hard to standardize.
 
-## What The Checkup Report Looks Like
-
-| Report module | What users get |
-| --- | --- |
-| Launch checkup verdict | go / caution / stop / unknown, so you can decide whether to keep pushing |
-| Go-to-market route | Which checks come first for ecommerce, physical trade, or hybrid launch paths |
-| Target-market benchmark | How similar local products handle price, pack size, packaging, claims, channels, certifications, and review signals |
-| Listing risk map | Where platform, market, category, brand, label, certificate, and logistics risks sit |
-| Qualification gap table | Which document is missing, expired, mismatched, or unverifiable |
-| Packaging and label fixes | What to change in front/back label, ingredients, allergens, warnings, marks, language, and claims |
-| Localization recommendations | How packaging visuals, pack strategy, claims, channel play, price band, and fulfillment should adapt to the destination market |
-| Price and positioning | Price bands, unit prices, channel tiers, packaging angles, and differentiation opportunities |
-| Logistics budget view | Cost, speed, and risk tradeoffs across air, sea, warehouse, and local delivery |
-| Remediation wording | Clear requests for suppliers, clients, or service providers |
-| Review trail | Decision, evidence, sources, gaps, and next actions for team handoff |
-
 ## Real Run Example
 
 - Product: Fratelli Mantova Equilibrato Extra Virgin Olive Oil 250ml
@@ -112,32 +96,6 @@ Core overview card:
 - Categories: food, cosmetics, supplements, electronics, household chemicals
 
 Review routes connect to official or authoritative source entry points such as Amazon Seller Central, TikTok Shop Seller Center, FDA, CBP, European Commission, FCC, CPSC, ASEAN, Singapore HSA, Malaysia NPRA, GOV.UK, MHLW, METI, GACC, SAMR, NMPA, WIPO, EUIPO, and USPTO.
-
-## How It Decides
-
-The most useful workflow is neither "benchmarking first and only" nor "compliance review only." It first locks scope and route, then finds hard blockers that could stop listing, import, customs, authorization, labeling, or logistics. After those blockers are visible, target-market benchmarking and localization recommendations become the core commercial judgment layer: price, packaging, channel, claims, trust signals, fulfillment, and differentiation.
-
-1. **Lock scope**: origin, destination markets, go-to-market route, marketplace or offline channel, category, product, and applicant role.
-2. **Split by route**: ecommerce prioritizes platform admission, category gating, listing, and fulfillment; physical trade prioritizes export, import, customs, responsible party, and distributor/retail channels; hybrid runs both.
-3. **Run admission-risk screen**: prohibited/restricted product, registration, label, claims, brand authorization, certificates, customs, logistics, and responsible party.
-4. **Plan source channels**: regulator, customs, standards, certification, brand/IP, company registry, logistics/warehouse, and user-provided channels.
-5. **Benchmark target market**: after core sellability risks are visible, compare local products for price, pack size, packaging, channel, claims, certification, review, and fulfillment signals.
-6. **Generate localization recommendations**: convert admission findings and benchmark signals into concrete packaging, label, copy, channel, price, logistics, and remediation changes.
-7. **Deliver artifacts**: core overview card plus detailed checkup report, with source tier and external-verification status for every important conclusion.
-
-<details>
-<summary>Structured Decision Statuses</summary>
-
-| Status | Meaning |
-| --- | --- |
-| `approve` | Current evidence and verification support moving forward. |
-| `conditional_approve` | Can proceed after bounded low/medium fixes are completed. |
-| `request_more_info` | Material evidence is missing, unverifiable, or out of scope. |
-| `reject` | Confirmed serious non-compliance, prohibited product, unauthorized sale, or unfixable invalid material. |
-| `escalate_human` | Suspected fraud, sanctions/export-control concern, sensitive identity issue, legal ambiguity, or conflicting authoritative sources. |
-| `not_applicable` | The requested review does not apply to the given platform, market, category, or purpose. |
-
-</details>
 
 ## 🙏 Acknowledgements
 
