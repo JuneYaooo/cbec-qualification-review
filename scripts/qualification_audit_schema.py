@@ -2332,6 +2332,40 @@ def _first_distilled_segment(value: Any, fallback: str = "待核验") -> str:
     return _short_text(text, 54) or fallback
 
 
+def _overview_benchmark_checkups(benchmark_summary: dict[str, Any]) -> list[tuple[str, str]]:
+    price_anchor = _first_distilled_segment(benchmark_summary.get("reference_price_band"), "同规格价格待核验")
+    channel_map = _zh_case_text(benchmark_summary.get("channel_map"))
+    packaging = _zh_case_text(benchmark_summary.get("packaging_conventions"))
+    claims = _zh_case_text(benchmark_summary.get("claims_and_proof"))
+
+    price_text = f"{price_anchor}；先按同规格核价，不要只按进口溢价定价。"
+
+    if "京东" in channel_map or "天猫" in channel_map:
+        channel_text = "京东自营/会员仓储可作线上对标；先核同规格价格、进口主体和渠道要求。"
+    elif channel_map:
+        channel_text = f"{_first_distilled_segment(channel_map, '目标渠道待核验')}；先确认该渠道能否承接这个进口路径。"
+    else:
+        channel_text = "渠道样本不足；先补平台、零售或进口商渠道样本再判断打法。"
+
+    packaging_terms: list[str] = []
+    if "250ml" in packaging:
+        packaging_terms.append("250ml小瓶有市场参照")
+    if any(term in packaging for term in ("礼盒", "多瓶", "组合")):
+        packaging_terms.append("可评估多瓶/礼盒组合")
+    if any(term in claims for term in ("轻食", "健身", "炒菜", "凉拌", "儿童")):
+        packaging_terms.append("卖点要落到使用场景")
+    if packaging_terms:
+        packaging_text = "；".join(packaging_terms[:2]) + "；中文背标和进口责任方先补齐。"
+    else:
+        packaging_text = "包装打法还缺参照；先补本地标签、容量和使用场景对标。"
+
+    return [
+        ("价格体检", price_text),
+        ("渠道体检", channel_text),
+        ("包装/卖点体检", packaging_text),
+    ]
+
+
 def _overview_card_distillation(report: dict[str, Any]) -> dict[str, Any]:
     benchmark_summary = report.get("market_benchmark_summary") if isinstance(report.get("market_benchmark_summary"), dict) else {}
     evidence = _evidence_status(report)
@@ -2344,11 +2378,7 @@ def _overview_card_distillation(report: dict[str, Any]) -> dict[str, Any]:
             f"{_zh_case_text(item.get('material'))}: {_zh_case_text(item.get('why_required'))}"
             for item in missing
         ],
-        "benchmark_signals": [
-            ("价格锚点", _first_distilled_segment(benchmark_summary.get("reference_price_band"), "价格待实时核验")),
-            ("渠道锚点", _short_text(_zh_case_text(benchmark_summary.get("channel_map")), 58) or "渠道样本待补"),
-            ("信任信号", _short_text(_zh_case_text(benchmark_summary.get("visible_trust_signals")), 58) or "信任背书待核验"),
-        ],
+        "benchmark_signals": _overview_benchmark_checkups(benchmark_summary),
         "evidence": evidence,
     }
 
