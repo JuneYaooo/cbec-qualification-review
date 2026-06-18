@@ -8,6 +8,7 @@
 
 [![Skill](https://img.shields.io/badge/Agent-Skill-orange.svg)](./SKILL.md)
 [![Hackathon](https://img.shields.io/badge/International%20Food%20Expo%20Hackathon-2nd%20Place-gold.svg)](#)
+[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-orange.svg)](./LICENSE)
 
 国际食品展黑客松第二名项目，现已开源。
 
@@ -147,3 +148,9 @@ agent 会把仓库克隆到本地，并放到它自己的 skills 目录。安装
 ### 社区
 
 - [LINUX DO — 中文开发者社区](https://linux.do/)
+
+## License
+
+本项目采用 [PolyForm Noncommercial License 1.0.0](./LICENSE) 授权，**禁止商用**。
+
+商业使用或者商务合作请联系 <juneyaooo@gmail.com>。

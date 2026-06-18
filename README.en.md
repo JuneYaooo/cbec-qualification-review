@@ -8,6 +8,7 @@
 
 [![Skill](https://img.shields.io/badge/Agent-Skill-orange.svg)](./SKILL.md)
 [![Hackathon](https://img.shields.io/badge/International%20Food%20Expo%20Hackathon-2nd%20Place-gold.svg)](#)
+[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-orange.svg)](./LICENSE)
 
 2nd place project at an International Food Expo hackathon, now open sourced.
 
@@ -145,3 +146,9 @@ Review routes connect to official or authoritative source entry points such as A
 ### Community
 
 - [LINUX DO — Chinese developer community](https://linux.do/)
+
+## License
+
+This project is licensed under the [PolyForm Noncommercial License 1.0.0](./LICENSE). **Commercial use is prohibited.**
+
+For commercial use or business collaboration, contact <juneyaooo@gmail.com>.
