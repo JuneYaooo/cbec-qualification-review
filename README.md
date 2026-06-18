@@ -75,7 +75,7 @@
 
 ## 真实运行示例
 
-下面的示例不是手工 mock。输入图片、结构化 bundle、JSON 报告、核心卡片和 PDF 都保存在仓库里，可以复现。
+下面的示例不是手工 mock。输入 bundle、结构化报告和详细 PDF 都保存在仓库里，可以复现。
 
 ### 示例 1：Mantova 橄榄油进口到中国
 
@@ -83,11 +83,12 @@
 - 目标：从意大利进口到中国
 - 销售路径：`physical_trade`
 - 输入依据：3 张商品实拍图，属于 T4；同时由 agent 主动检索公开商业渠道，补入 10 条中国市场橄榄油对标样本。对标只作为市场信号，不伪装成监管、进口或标签核验结果。
-- 产物：[输入 bundle](./examples/real-runs/mantova-olive-oil-china-import/input-bundle.json)、[结构化报告 JSON](./examples/real-runs/mantova-olive-oil-china-import/outputs/report.json)、[详细 PDF](./examples/real-runs/mantova-olive-oil-china-import/outputs/detailed-report.pdf)
 
 核心速览卡片：
 
 ![Mantova 橄榄油进口中国核心速览卡片](./examples/real-runs/mantova-olive-oil-china-import/outputs/core-card.png)
+
+- 产物：[输入 bundle](./examples/real-runs/mantova-olive-oil-china-import/input-bundle.json)、[结构化报告 JSON](./examples/real-runs/mantova-olive-oil-china-import/outputs/report.json)、[详细 PDF](./examples/real-runs/mantova-olive-oil-china-import/outputs/detailed-report.pdf)
 
 ## 适合谁
 
