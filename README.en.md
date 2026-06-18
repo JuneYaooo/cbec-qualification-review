@@ -110,6 +110,12 @@ You can also provide certificates, package photos, competitor screenshots, platf
 - Go-to-market route: `physical_trade`
 - Input basis: 3 product photos treated as T4 evidence; the agent also searched public commercial channels and added 10 China-market olive-oil benchmark samples. Benchmarks are used as market signals, not as regulatory, import, or label verification.
 
+Input photos:
+
+| Front label | Back nutrition label | Side origin label |
+| --- | --- | --- |
+| ![Mantova olive oil front label](./examples/real-runs/mantova-olive-oil-china-import/inputs/front-label.png) | ![Mantova olive oil back nutrition label](./examples/real-runs/mantova-olive-oil-china-import/inputs/back-label-nutrition.png) | ![Mantova olive oil side origin label](./examples/real-runs/mantova-olive-oil-china-import/inputs/side-label-origin.png) |
+
 Core overview card:
 
 ![Mantova olive oil import-to-China core overview card](./examples/real-runs/mantova-olive-oil-china-import/outputs/core-card.png)
