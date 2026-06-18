@@ -30,6 +30,14 @@ class ReadmeExampleTests(unittest.TestCase):
         self.assertNotIn("detailed-report.html", readme)
         self.assertNotIn("core-card.html", readme)
 
+    def test_chinese_readme_prioritizes_audience_and_removes_internal_state_explainer(self):
+        readme = Path("README.md").read_text(encoding="utf-8")
+
+        self.assertLess(readme.index("## 适合谁"), readme.index("## 你需要提供什么"))
+        self.assertNotIn("下面的示例不是手工 mock", readme)
+        self.assertNotIn("## 它怎么判断", readme)
+        self.assertNotIn("结构化结论状态", readme)
+
     def test_skill_requires_agent_found_benchmarking(self):
         skill = Path("SKILL.md").read_text(encoding="utf-8")
 
