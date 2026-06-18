@@ -36,6 +36,11 @@ Must-check channels:
 Next actions:
 - Owner / action / evidence needed
 
+Benchmark signals:
+- Price anchor:
+- Channel anchor:
+- Trust / packaging signal:
+
 Evidence status:
 - T1/T2 confirmed:
 - T4 user-provided only:
@@ -48,7 +53,9 @@ Generation note:
 Design rules:
 
 - Keep it readable at social-card size.
+- Generate the detailed report/PDF first; derive this card from the detailed report's executive snapshot, blocker table, missing-material table, benchmark summary, and evidence counts.
 - Use at most 3 top blockers and 3 next actions.
+- Include at most 3 benchmark signals. Prefer price anchor, channel anchor, and trust/packaging signal; never include long source URLs or benchmark-source boundary text on the card.
 - Do not include long legal explanations or dense tables.
 - Include a small unobtrusive generation note in a corner or footer: agent, model if declared, search/information routes used, and generated date.
 - If generated as HTML, save the HTML source and a PNG screenshot.

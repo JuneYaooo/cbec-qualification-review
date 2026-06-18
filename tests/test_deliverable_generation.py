@@ -144,6 +144,7 @@ class DeliverableGenerationTests(unittest.TestCase):
                     self.assertEqual(0, _write_html_or_export(str(output_path), "<html></html>", "detail"))
 
             command = run.call_args.args[0]
+            self.assertIn("--no-pdf-header-footer", command)
             self.assertIn("--print-to-pdf-no-header", command)
 
     def test_real_run_without_benchmarks_outputs_benchmark_research_plan(self):
@@ -220,6 +221,19 @@ class DeliverableGenerationTests(unittest.TestCase):
         self.assertNotIn("Chinese label artwork", html)
         self.assertNotIn("Unsupported claims", html)
         self.assertIn("width: 1200px", html)
+
+    def test_real_run_card_is_distilled_from_detailed_report_signals(self):
+        report = launch_report_from_bundle(json.loads(REAL_RUN_FIXTURE.read_text(encoding="utf-8")))
+        html = render_overview_card_html(report)
+
+        self.assertIn("详细报告提炼", html)
+        self.assertIn("对标信号", html)
+        self.assertIn("价格锚点", html)
+        self.assertIn("约¥0.109-0.128/ml", html)
+        self.assertIn("京东自营", html)
+        self.assertIn("正文依据见详细 PDF", html)
+        self.assertNotIn("https://search.jd.com", html)
+        self.assertNotIn("对标来源与核验边界", html)
 
     def test_real_run_detailed_report_hides_raw_machine_fallbacks(self):
         report = launch_report_from_bundle(json.loads(REAL_RUN_FIXTURE.read_text(encoding="utf-8")))

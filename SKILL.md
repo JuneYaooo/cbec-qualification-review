@@ -50,7 +50,8 @@ For a complete LaunchFit review, produce two user-facing deliverables:
 1. **Core overview card**
    - Purpose: one-screen decision aid for founders, sellers, clients, and operators.
    - Format: image card when image generation or screenshot tooling is available; otherwise HTML card that can be screenshot.
-   - Contents: product and route, origin and destinations, launch view, top 3 blockers, must-check channels, next actions, and confidence/evidence status.
+   - Contents: product and route, origin and destinations, launch view, top 3 blockers, must-check channels, next actions, top benchmark signals, and confidence/evidence status.
+   - Generation rule: treat the detailed PDF/report as the source of truth first, then distill the card from its structured sections. Do not run the card as a parallel standalone summary.
    - Rule: no dense legal explanation, no long tables, no unsupported pass/fail claim. Include a small corner/footer generation note naming agent, declared model, search/information routes, and generated date.
 
 2. **Detailed PDF**

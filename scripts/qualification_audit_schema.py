@@ -2049,8 +2049,8 @@ def _dedupe_rows(items: list[dict[str, Any]], key_fn) -> list[dict[str, Any]]:
     return deduped
 
 
-def _html_bullets(items: list[str], empty: str = "待补充") -> str:
-    values = [_short_text(_zh_case_text(item), 118) for item in items if _text(item)]
+def _html_bullets(items: list[str], empty: str = "待补充", limit: int = 118) -> str:
+    values = [_short_text(_zh_case_text(item), limit) for item in items if _text(item)]
     if not values:
         values = [empty]
     return "".join(f"<li>{_html(item)}</li>" for item in values)
@@ -2312,6 +2312,47 @@ def _benchmark_source_rows(report: dict[str, Any]) -> str:
     return "".join(rows)
 
 
+def _first_distilled_segment(value: Any, fallback: str = "待核验") -> str:
+    text = _zh_case_text(value)
+    if not text:
+        return fallback
+    segments = [
+        part.strip()
+        for raw in text.replace("；", ";").replace("，", ",").split(";")
+        for part in raw.split(",")
+        if part.strip()
+    ]
+    for segment in segments:
+        normalized = segment.lower()
+        if any(char.isdigit() for char in segment) and "待动态核价" not in normalized and "待核验" not in normalized:
+            return _short_text(segment, 54)
+    for segment in segments:
+        if "待动态核价" not in segment and "待核验" not in segment:
+            return _short_text(segment, 54)
+    return _short_text(text, 54) or fallback
+
+
+def _overview_card_distillation(report: dict[str, Any]) -> dict[str, Any]:
+    benchmark_summary = report.get("market_benchmark_summary") if isinstance(report.get("market_benchmark_summary"), dict) else {}
+    evidence = _evidence_status(report)
+    findings = _top_findings(report)
+    missing = _top_missing(report)
+    return {
+        "method": "详细报告提炼",
+        "blockers": [_text(item.get("observed_issue")) for item in findings],
+        "actions": [
+            f"{_zh_case_text(item.get('material'))}: {_zh_case_text(item.get('why_required'))}"
+            for item in missing
+        ],
+        "benchmark_signals": [
+            ("价格锚点", _first_distilled_segment(benchmark_summary.get("reference_price_band"), "价格待实时核验")),
+            ("渠道锚点", _short_text(_zh_case_text(benchmark_summary.get("channel_map")), 58) or "渠道样本待补"),
+            ("信任信号", _short_text(_zh_case_text(benchmark_summary.get("visible_trust_signals")), 58) or "信任背书待核验"),
+        ],
+        "evidence": evidence,
+    }
+
+
 def _source_appendix_rows(report: dict[str, Any]) -> str:
     rows: list[str] = []
     for source in report.get("sources") or []:
@@ -2336,19 +2377,19 @@ def render_overview_card_html(report: dict[str, Any]) -> str:
     decision = report.get("decision") if isinstance(report.get("decision"), dict) else {}
     route = report.get("go_to_market_route") if isinstance(report.get("go_to_market_route"), dict) else go_to_market_route_profile(_text(case.get("go_to_market_model")) or "unknown")
     destinations = _as_list(case.get("destination_markets")) or _as_list(case.get("destination_market"))
-    findings = _top_findings(report)
-    missing = _top_missing(report)
+    distilled = _overview_card_distillation(report)
     channels = _channel_types(report)
-    evidence = _evidence_status(report)
     product = _text(case.get("product_name") or case.get("subcategory") or case.get("product_category") or "商品")
-    blocker_items = [_text(item.get("observed_issue")) for item in findings]
-    action_items = [
-        f"{_zh_case_text(item.get('material'))}: {_zh_case_text(item.get('why_required'))}"
-        for item in missing
-    ]
+    blocker_items = distilled["blockers"]
+    action_items = distilled["actions"]
     channel_items = [_zh_channel(channel) for channel in channels[:8]]
     destination_text = "、".join(_zh_country(item) for item in destinations if _text(item))
     provenance = _generation_provenance_html(report, limit=92)
+    benchmark_cards = "".join(
+        f"<div class='signal'><span>{_html(label)}</span><b>{_html(value)}</b></div>"
+        for label, value in distilled["benchmark_signals"]
+    )
+    evidence = distilled["evidence"]
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -2357,44 +2398,54 @@ def render_overview_card_html(report: dict[str, Any]) -> str:
   <title>出海体检核心卡 / Core Overview Card</title>
   <style>
     * {{ box-sizing: border-box; }}
-    body {{ margin: 0; width: 1200px; background: #f3f0e8; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif; letter-spacing: 0; }}
-    .card {{ margin: 44px 52px; background: #fffdf8; border: 1px solid #1b2430; border-radius: 4px; box-shadow: 0 18px 44px rgba(20, 31, 43, .15); overflow: hidden; }}
-    .top {{ display: grid; grid-template-columns: 1.25fr .75fr; gap: 0; border-bottom: 2px solid #1b2430; }}
-    .title {{ padding: 38px 46px 30px; }}
-    .eyebrow {{ color: #1769aa; font-weight: 850; font-size: 22px; margin-bottom: 16px; }}
-    h1 {{ font-size: 52px; line-height: 1.06; margin: 0 0 16px; max-width: 760px; }}
-    .subtitle {{ color: #5e6a78; font-size: 23px; line-height: 1.35; max-width: 760px; }}
-    .verdict {{ background: #142033; color: #fffdf8; padding: 38px 36px; display: flex; flex-direction: column; justify-content: space-between; }}
-    .verdict .small {{ color: #aebfcd; font-size: 18px; font-weight: 750; margin-bottom: 8px; }}
-    .verdict .big {{ font-size: 42px; line-height: 1.1; font-weight: 900; }}
-    .risk {{ display: inline-block; margin-top: 18px; padding: 8px 12px; background: #b93a32; color: white; font-size: 20px; font-weight: 850; }}
+    body {{ margin: 0; width: 1200px; background: #edeae1; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif; letter-spacing: 0; }}
+    .card {{ margin: 24px 46px; background: #fffdf8; border: 1px solid #1b2430; border-radius: 4px; box-shadow: 0 18px 44px rgba(20, 31, 43, .14); overflow: hidden; }}
+    .top {{ display: grid; grid-template-columns: 1.22fr .78fr; gap: 0; border-bottom: 2px solid #1b2430; }}
+    .title {{ padding: 27px 42px 22px; }}
+    .eyebrow {{ color: #1769aa; font-weight: 900; font-size: 20px; margin-bottom: 11px; }}
+    h1 {{ font-size: 43px; line-height: 1.04; margin: 0 0 12px; max-width: 760px; }}
+    .subtitle {{ color: #4e5c6b; font-size: 20px; line-height: 1.28; max-width: 760px; }}
+    .verdict {{ background: #142033; color: #fffdf8; padding: 28px 31px; display: flex; flex-direction: column; justify-content: space-between; }}
+    .verdict .small {{ color: #aebfcd; font-size: 17px; font-weight: 750; margin-bottom: 8px; }}
+    .verdict .big {{ font-size: 38px; line-height: 1.06; font-weight: 900; }}
+    .risk {{ display: inline-block; margin-top: 13px; padding: 7px 11px; background: #b93a32; color: white; font-size: 19px; font-weight: 850; }}
     .meta {{ display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid #1b2430; }}
-    .meta > div {{ padding: 20px 24px; border-right: 1px solid #1b2430; min-height: 108px; }}
+    .meta > div {{ padding: 14px 22px; border-right: 1px solid #1b2430; min-height: 84px; }}
     .meta > div:last-child {{ border-right: 0; }}
-    .label {{ color: #687381; font-size: 17px; font-weight: 850; margin-bottom: 10px; }}
-    .value {{ font-size: 26px; font-weight: 900; line-height: 1.18; }}
+    .label {{ color: #687381; font-size: 15px; font-weight: 850; margin-bottom: 7px; }}
+    .value {{ font-size: 23px; font-weight: 900; line-height: 1.12; }}
+    .path {{ display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid #1b2430; background: #f7f4eb; }}
+    .path div {{ padding: 12px 24px; border-right: 1px solid #1b2430; }}
+    .path div:last-child {{ border-right: 0; }}
+    .path span {{ display: block; color: #687381; font-size: 14px; font-weight: 850; margin-bottom: 4px; }}
+    .path b {{ font-size: 22px; }}
     .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0; }}
-    .section {{ padding: 28px 34px; min-height: 294px; border-right: 1px solid #1b2430; border-bottom: 1px solid #1b2430; }}
+    .section {{ padding: 20px 30px; min-height: 212px; border-right: 1px solid #1b2430; border-bottom: 1px solid #1b2430; }}
     .section:nth-child(even) {{ border-right: 0; }}
-    .section h2 {{ font-size: 30px; margin: 0 0 18px; display: flex; align-items: center; gap: 12px; }}
-    .mark {{ width: 12px; height: 30px; display: inline-block; }}
+    .section h2 {{ font-size: 27px; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }}
+    .mark {{ width: 12px; height: 27px; display: inline-block; }}
     .blocker .mark {{ background: #b93a32; }}
     .verify .mark {{ background: #1c6f9e; }}
     .action .mark {{ background: #2f7d5b; }}
-    .evidence .mark {{ background: #7b6b47; }}
+    .benchmark .mark {{ background: #7b6b47; }}
     ul {{ margin: 0; padding-left: 25px; }}
-    li {{ font-size: 22px; line-height: 1.38; margin: 0 0 12px; }}
+    li {{ font-size: 19px; line-height: 1.3; margin: 0 0 8px; }}
     .section.blocker {{ background: #fff3f1; }}
     .section.verify {{ background: #eef7fb; }}
     .section.action {{ background: #eff8f2; }}
-    .section.evidence {{ background: #f7f4eb; }}
+    .section.benchmark {{ background: #f7f4eb; }}
     .chips {{ display: flex; flex-wrap: wrap; gap: 10px; }}
-    .chip {{ font-size: 20px; padding: 8px 11px; border-radius: 2px; background: #fffdf8; color: #173c55; border: 1px solid #8ab4cc; font-weight: 850; }}
-    .evidence-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }}
-    .metric {{ background: #fffdf8; border: 1px solid #c6bda5; padding: 14px; }}
-    .metric b {{ display: block; font-size: 28px; margin-bottom: 4px; }}
+    .chip {{ font-size: 18px; padding: 8px 10px; border-radius: 2px; background: #fffdf8; color: #173c55; border: 1px solid #8ab4cc; font-weight: 850; }}
+    .signal-grid {{ display: grid; grid-template-columns: 1fr; gap: 9px; }}
+    .signal {{ background: #fffdf8; border: 1px solid #c6bda5; padding: 10px 12px; }}
+    .signal span {{ display: block; color: #6a5c3f; font-size: 15px; font-weight: 850; margin-bottom: 4px; }}
+    .signal b {{ display: block; font-size: 20px; line-height: 1.22; }}
+    .evidence-strip {{ display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid #1b2430; }}
+    .metric {{ background: #fffdf8; border-right: 1px solid #1b2430; padding: 13px 26px; }}
+    .metric:last-child {{ border-right: 0; }}
+    .metric b {{ display: inline-block; font-size: 28px; margin-right: 8px; }}
     .metric span {{ color: #687381; font-size: 16px; font-weight: 750; }}
-    .footer {{ padding: 20px 34px; color: #5e6a78; font-size: 19px; line-height: 1.35; }}
+    .footer {{ padding: 13px 30px; color: #5e6a78; font-size: 17px; line-height: 1.25; display: flex; justify-content: space-between; gap: 18px; }}
     .verdict .provenance {{ color: #aebfcd; font-size: 12px; line-height: 1.35; margin-top: 12px; font-weight: 650; }}
     .compat {{ display: none; }}
   </style>
@@ -2404,9 +2455,9 @@ def render_overview_card_html(report: dict[str, Any]) -> str:
     <span class="compat">Core Overview Card Top blockers Must-check channels Next actions Evidence status Origin Destinations Go-to-market path Chinese label {_html(_plain_label(route.get("label")))}</span>
     <section class="top">
       <div class="title">
-        <div class="eyebrow">LaunchFit AI · 出海体检核心卡</div>
+        <div class="eyebrow">LaunchFit AI · 出海体检核心卡 · {_html(distilled["method"])}</div>
         <h1>{_html(product)}</h1>
-        <div class="subtitle">先判准入，再看对标。当前结论基于已提交材料，未完成官方外部核验前不建议推进。</div>
+        <div class="subtitle">先由详细报告完成准入、对标、本地化和落地拆解，再压缩成这张卖前决策卡。</div>
       </div>
       <div class="verdict">
         <div>
@@ -2426,13 +2477,23 @@ def render_overview_card_html(report: dict[str, Any]) -> str:
       <div><div class="label">目标市场</div><div class="value">{_html(destination_text)}</div></div>
       <div><div class="label">证据基础</div><div class="value">T4 用户材料</div></div>
     </section>
-    <section class="grid">
-      <div class="section blocker"><h2><span class="mark"></span>关键阻断</h2><ul>{_html_bullets(blocker_items)}</ul></div>
-      <div class="section verify"><h2><span class="mark"></span>必须核验</h2><div class="chips">{"".join(f"<span class='chip'>{_html(channel)}</span>" for channel in channel_items) or "<span class='chip'>待补渠道</span>"}</div></div>
-      <div class="section action"><h2><span class="mark"></span>下一步</h2><ul>{_html_bullets(action_items, "完成 P0/P1 核验任务")}</ul></div>
-      <div class="section evidence"><h2><span class="mark"></span>证据状态</h2><div class="evidence-grid"><div class="metric"><b>{evidence['authoritative']}</b><span>T1/T2 权威来源</span></div><div class="metric"><b>{evidence['user_provided']}</b><span>T4 用户材料</span></div><div class="metric"><b>{evidence['needs_external_verification']}</b><span>需外部核验</span></div></div></div>
+    <section class="path">
+      <div><span>路径 1</span><b>先判准入</b></div>
+      <div><span>路径 2</span><b>再看对标</b></div>
+      <div><span>路径 3</span><b>最后落地</b></div>
     </section>
-    <div class="footer">说明：本卡用于快速决策，不替代官方监管、海关、平台或专业法律意见。详细依据见 PDF。</div>
+    <section class="grid">
+      <div class="section blocker"><h2><span class="mark"></span>关键阻断</h2><ul>{_html_bullets(blocker_items, limit=96)}</ul></div>
+      <div class="section verify"><h2><span class="mark"></span>必须核验</h2><div class="chips">{"".join(f"<span class='chip'>{_html(channel)}</span>" for channel in channel_items) or "<span class='chip'>待补渠道</span>"}</div></div>
+      <div class="section action"><h2><span class="mark"></span>下一步</h2><ul>{_html_bullets(action_items, "完成 P0/P1 核验任务", limit=92)}</ul></div>
+      <div class="section benchmark"><h2><span class="mark"></span>对标信号</h2><div class="signal-grid">{benchmark_cards}</div></div>
+    </section>
+    <section class="evidence-strip" aria-label="证据状态">
+      <div class="metric"><b>{evidence['authoritative']}</b><span>T1/T2 权威来源</span></div>
+      <div class="metric"><b>{evidence['user_provided']}</b><span>T4 用户材料</span></div>
+      <div class="metric"><b>{evidence['needs_external_verification']}</b><span>需外部核验</span></div>
+    </section>
+    <div class="footer"><span>正文依据见详细 PDF；来源链接与对标核验边界放在附件。</span><span>本卡不替代官方监管、海关、平台或专业法律意见。</span></div>
   </main>
 </body>
 </html>
@@ -2750,6 +2811,7 @@ def _write_html_or_export(output_file: str, html_text: str, mode: str) -> int:
                 "--headless=new",
                 "--disable-gpu",
                 "--no-first-run",
+                "--no-pdf-header-footer",
                 "--print-to-pdf-no-header",
                 f"--print-to-pdf={output_path}",
                 html_path.resolve().as_uri(),
