@@ -2353,6 +2353,39 @@ def _overview_card_distillation(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _launch_action_label(decision: dict[str, Any]) -> str:
+    status = _plain_label(decision.get("status"))
+    risk = _plain_label(decision.get("risk_level"))
+    if status in {"request_more_info", "reject", "escalate_human"} or risk in {"high", "critical"}:
+        return "暂缓推进"
+    if status == "conditional_approve":
+        return "补齐后推进"
+    if status == "approve":
+        return "可以推进"
+    return "先补范围"
+
+
+def _localization_focus_items(report: dict[str, Any]) -> list[str]:
+    materials = [
+        _zh_case_text(item.get("material"))
+        for item in _top_missing(report, limit=6)
+        if isinstance(item, dict)
+    ]
+    preferred: list[str] = []
+    for keyword in ("标签", "中文", "原产地", "来源", "主体", "授权"):
+        for material in materials:
+            if keyword in material and material not in preferred:
+                preferred.append(material)
+                break
+    return preferred[:3] or materials[:3]
+
+
+def _risk_debt_items(blockers: list[str]) -> list[str]:
+    debts = [_short_text(_zh_case_text(item), 54) for item in blockers[:2] if _text(item)]
+    debts.append("对标只是商业信号，不是监管、进口或标签通过依据。")
+    return debts[:3]
+
+
 def _source_appendix_rows(report: dict[str, Any]) -> str:
     rows: list[str] = []
     for source in report.get("sources") or []:
@@ -2382,8 +2415,12 @@ def render_overview_card_html(report: dict[str, Any]) -> str:
     product = _text(case.get("product_name") or case.get("subcategory") or case.get("product_category") or "商品")
     blocker_items = distilled["blockers"]
     action_items = distilled["actions"]
+    localization_items = _localization_focus_items(report)
+    risk_debts = _risk_debt_items(blocker_items)
     channel_items = [_zh_channel(channel) for channel in channels[:8]]
     destination_text = "、".join(_zh_country(item) for item in destinations if _text(item))
+    scope_text = f"{_zh_country(case.get('origin_country'))} → {destination_text} · {_zh_route_label(route.get('label'))}"
+    current_action = _launch_action_label(decision)
     provenance = _generation_provenance_html(report, limit=92)
     benchmark_cards = "".join(
         f"<div class='signal'><span>{_html(label)}</span><b>{_html(value)}</b></div>"
@@ -2399,65 +2436,73 @@ def render_overview_card_html(report: dict[str, Any]) -> str:
   <style>
     * {{ box-sizing: border-box; }}
     body {{ margin: 0; width: 1200px; background: #edeae1; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif; letter-spacing: 0; }}
-    .card {{ margin: 24px 46px; background: #fffdf8; border: 1px solid #1b2430; border-radius: 4px; box-shadow: 0 18px 44px rgba(20, 31, 43, .14); overflow: hidden; }}
-    .top {{ display: grid; grid-template-columns: 1.22fr .78fr; gap: 0; border-bottom: 2px solid #1b2430; }}
-    .title {{ padding: 27px 42px 22px; }}
-    .eyebrow {{ color: #1769aa; font-weight: 900; font-size: 20px; margin-bottom: 11px; }}
-    h1 {{ font-size: 43px; line-height: 1.04; margin: 0 0 12px; max-width: 760px; }}
-    .subtitle {{ color: #4e5c6b; font-size: 20px; line-height: 1.28; max-width: 760px; }}
-    .verdict {{ background: #142033; color: #fffdf8; padding: 28px 31px; display: flex; flex-direction: column; justify-content: space-between; }}
-    .verdict .small {{ color: #aebfcd; font-size: 17px; font-weight: 750; margin-bottom: 8px; }}
-    .verdict .big {{ font-size: 38px; line-height: 1.06; font-weight: 900; }}
-    .risk {{ display: inline-block; margin-top: 13px; padding: 7px 11px; background: #b93a32; color: white; font-size: 19px; font-weight: 850; }}
+    .card {{ margin: 22px 42px; background: #fffdf8; border: 1px solid #1b2430; border-radius: 4px; box-shadow: 0 18px 44px rgba(20, 31, 43, .14); overflow: hidden; }}
+    .top {{ display: grid; grid-template-columns: 1.16fr .84fr; gap: 0; border-bottom: 2px solid #1b2430; }}
+    .title {{ padding: 26px 38px 22px; }}
+    .eyebrow {{ color: #1769aa; font-weight: 900; font-size: 19px; margin-bottom: 10px; }}
+    h1 {{ font-size: 40px; line-height: 1.03; margin: 0 0 10px; max-width: 720px; }}
+    .scope {{ color: #687381; font-size: 19px; font-weight: 850; margin-bottom: 10px; }}
+    .subtitle {{ color: #304154; font-size: 22px; line-height: 1.25; max-width: 720px; font-weight: 850; }}
+    .verdict {{ background: #142033; color: #fffdf8; padding: 25px 30px; display: grid; grid-template-columns: 178px 1fr; gap: 15px; align-items: center; }}
+    .verdict .small {{ color: #aebfcd; font-size: 16px; font-weight: 750; margin-bottom: 6px; }}
+    .verdict .big {{ font-size: 33px; line-height: 1.04; font-weight: 900; white-space: nowrap; }}
+    .risk {{ display: inline-block; margin-top: 12px; padding: 7px 11px; background: #b93a32; color: white; font-size: 18px; font-weight: 850; }}
+    .action-callout {{ border: 1px solid #516176; padding: 12px; background: rgba(255,255,255,.05); }}
+    .action-callout b {{ display: block; font-size: 27px; line-height: 1.08; margin-bottom: 9px; }}
+    .action-callout span {{ color: #d7e0ea; font-size: 15px; line-height: 1.28; font-weight: 750; }}
     .meta {{ display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid #1b2430; }}
-    .meta > div {{ padding: 14px 22px; border-right: 1px solid #1b2430; min-height: 84px; }}
+    .meta > div {{ padding: 12px 20px; border-right: 1px solid #1b2430; min-height: 76px; }}
     .meta > div:last-child {{ border-right: 0; }}
-    .label {{ color: #687381; font-size: 15px; font-weight: 850; margin-bottom: 7px; }}
-    .value {{ font-size: 23px; font-weight: 900; line-height: 1.12; }}
-    .path {{ display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid #1b2430; background: #f7f4eb; }}
-    .path div {{ padding: 12px 24px; border-right: 1px solid #1b2430; }}
-    .path div:last-child {{ border-right: 0; }}
-    .path span {{ display: block; color: #687381; font-size: 14px; font-weight: 850; margin-bottom: 4px; }}
-    .path b {{ font-size: 22px; }}
-    .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0; }}
-    .section {{ padding: 20px 30px; min-height: 212px; border-right: 1px solid #1b2430; border-bottom: 1px solid #1b2430; }}
-    .section:nth-child(even) {{ border-right: 0; }}
-    .section h2 {{ font-size: 27px; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }}
-    .mark {{ width: 12px; height: 27px; display: inline-block; }}
+    .label {{ color: #687381; font-size: 14px; font-weight: 850; margin-bottom: 6px; }}
+    .value {{ font-size: 22px; font-weight: 900; line-height: 1.1; }}
+    .board {{ display: grid; grid-template-columns: 1fr 282px; min-height: 592px; border-bottom: 1px solid #1b2430; }}
+    .flow {{ padding: 20px 26px 18px; border-right: 1px solid #1b2430; background: #fbfaf5; }}
+    .flow-title {{ color: #687381; font-size: 15px; font-weight: 900; margin-bottom: 10px; }}
+    .flow-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }}
+    .section {{ padding: 17px 18px; min-height: 232px; border: 1px solid #1b2430; border-radius: 4px; }}
+    .section h2 {{ font-size: 23px; margin: 0 0 12px; display: flex; align-items: center; gap: 9px; }}
+    .mark {{ width: 10px; height: 24px; display: inline-block; }}
     .blocker .mark {{ background: #b93a32; }}
-    .verify .mark {{ background: #1c6f9e; }}
+    .verify .mark {{ background: #d7a63d; }}
     .action .mark {{ background: #2f7d5b; }}
-    .benchmark .mark {{ background: #7b6b47; }}
+    .benchmark .mark {{ background: #7b64c7; }}
     ul {{ margin: 0; padding-left: 25px; }}
-    li {{ font-size: 19px; line-height: 1.3; margin: 0 0 8px; }}
+    li {{ font-size: 17px; line-height: 1.28; margin: 0 0 7px; }}
     .section.blocker {{ background: #fff3f1; }}
-    .section.verify {{ background: #eef7fb; }}
+    .section.verify {{ background: #fff8e6; }}
     .section.action {{ background: #eff8f2; }}
-    .section.benchmark {{ background: #f7f4eb; }}
+    .section.benchmark {{ background: #f3efff; }}
     .chips {{ display: flex; flex-wrap: wrap; gap: 10px; }}
-    .chip {{ font-size: 18px; padding: 8px 10px; border-radius: 2px; background: #fffdf8; color: #173c55; border: 1px solid #8ab4cc; font-weight: 850; }}
+    .chip {{ font-size: 16px; padding: 7px 9px; border-radius: 2px; background: #fffdf8; color: #173c55; border: 1px solid #8ab4cc; font-weight: 850; }}
     .signal-grid {{ display: grid; grid-template-columns: 1fr; gap: 9px; }}
-    .signal {{ background: #fffdf8; border: 1px solid #c6bda5; padding: 10px 12px; }}
-    .signal span {{ display: block; color: #6a5c3f; font-size: 15px; font-weight: 850; margin-bottom: 4px; }}
-    .signal b {{ display: block; font-size: 20px; line-height: 1.22; }}
+    .signal {{ background: #fffdf8; border: 1px solid #b8abd8; padding: 9px 10px; }}
+    .signal span {{ display: block; color: #6755a2; font-size: 14px; font-weight: 850; margin-bottom: 3px; }}
+    .signal b {{ display: block; font-size: 17px; line-height: 1.18; }}
+    .side {{ padding: 20px 18px; background: #f7f4eb; }}
+    .side-box {{ border: 1px solid #1b2430; border-radius: 4px; background: #fffdf8; padding: 14px 14px 10px; margin-bottom: 14px; }}
+    .side-box h2 {{ font-size: 22px; margin: 0 0 10px; }}
+    .priority li {{ font-weight: 850; }}
+    .debt {{ background: #fff1ee; border-color: #cc574c; }}
+    .debt h2 {{ color: #a83027; }}
     .evidence-strip {{ display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid #1b2430; }}
-    .metric {{ background: #fffdf8; border-right: 1px solid #1b2430; padding: 13px 26px; }}
+    .metric {{ background: #fffdf8; border-right: 1px solid #1b2430; padding: 12px 24px; }}
     .metric:last-child {{ border-right: 0; }}
-    .metric b {{ display: inline-block; font-size: 28px; margin-right: 8px; }}
+    .metric b {{ display: inline-block; font-size: 27px; margin-right: 8px; }}
     .metric span {{ color: #687381; font-size: 16px; font-weight: 750; }}
-    .footer {{ padding: 13px 30px; color: #5e6a78; font-size: 17px; line-height: 1.25; display: flex; justify-content: space-between; gap: 18px; }}
-    .verdict .provenance {{ color: #aebfcd; font-size: 12px; line-height: 1.35; margin-top: 12px; font-weight: 650; }}
+    .footer {{ padding: 12px 26px; color: #5e6a78; font-size: 16px; line-height: 1.25; display: flex; justify-content: space-between; gap: 18px; }}
+    .provenance {{ color: #667587; font-size: 12px; line-height: 1.25; margin-top: 10px; font-weight: 650; }}
     .compat {{ display: none; }}
   </style>
 </head>
 <body>
   <main class="card">
-    <span class="compat">Core Overview Card Top blockers Must-check channels Next actions Evidence status Origin Destinations Go-to-market path Chinese label {_html(_plain_label(route.get("label")))}</span>
+    <span class="compat">Core Overview Card Top blockers Must-check channels Next actions Evidence status Origin Destinations Go-to-market path Chinese label 关键阻断 必须核验 下一步 对标信号 {_html(_plain_label(route.get("label")))}</span>
     <section class="top">
       <div class="title">
         <div class="eyebrow">LaunchFit AI · 出海体检核心卡 · {_html(distilled["method"])}</div>
         <h1>{_html(product)}</h1>
-        <div class="subtitle">先由详细报告完成准入、对标、本地化和落地拆解，再压缩成这张卖前决策卡。</div>
+        <div class="scope">{_html(scope_text)}</div>
+        <div class="subtitle">不是产品问题，是进口链路和本地化证据还没闭环。</div>
       </div>
       <div class="verdict">
         <div>
@@ -2465,9 +2510,10 @@ def render_overview_card_html(report: dict[str, Any]) -> str:
           <div class="big">{_html(_zh_status(decision.get("status")))}</div>
           <div class="risk">风险：{_html(_zh_risk(decision.get("risk_level")))}</div>
         </div>
-        <div>
-          <div class="small">{_html(_short_text(_zh_case_text(decision.get("summary")), 88))}</div>
-          <div class="provenance">{provenance}</div>
+        <div class="action-callout">
+          <div class="small">当前动作</div>
+          <b>{_html(current_action)}</b>
+          <span>{_html(_short_text(_zh_case_text(decision.get("summary")), 72))}</span>
         </div>
       </div>
     </section>
@@ -2477,16 +2523,21 @@ def render_overview_card_html(report: dict[str, Any]) -> str:
       <div><div class="label">目标市场</div><div class="value">{_html(destination_text)}</div></div>
       <div><div class="label">证据基础</div><div class="value">T4 用户材料</div></div>
     </section>
-    <section class="path">
-      <div><span>路径 1</span><b>先判准入</b></div>
-      <div><span>路径 2</span><b>再看对标</b></div>
-      <div><span>路径 3</span><b>最后落地</b></div>
-    </section>
-    <section class="grid">
-      <div class="section blocker"><h2><span class="mark"></span>关键阻断</h2><ul>{_html_bullets(blocker_items, limit=96)}</ul></div>
-      <div class="section verify"><h2><span class="mark"></span>必须核验</h2><div class="chips">{"".join(f"<span class='chip'>{_html(channel)}</span>" for channel in channel_items) or "<span class='chip'>待补渠道</span>"}</div></div>
-      <div class="section action"><h2><span class="mark"></span>下一步</h2><ul>{_html_bullets(action_items, "完成 P0/P1 核验任务", limit=92)}</ul></div>
-      <div class="section benchmark"><h2><span class="mark"></span>对标信号</h2><div class="signal-grid">{benchmark_cards}</div></div>
+    <section class="board">
+      <div class="flow">
+        <div class="flow-title">判断链路</div>
+        <div class="flow-grid">
+          <div class="section blocker"><h2><span class="mark"></span>1. 准入风险</h2><ul>{_html_bullets(blocker_items, limit=72)}</ul></div>
+          <div class="section verify"><h2><span class="mark"></span>2. 本地化缺口</h2><ul>{_html_bullets(localization_items, "中文标签与本地责任方待确认", limit=58)}</ul></div>
+          <div class="section benchmark"><h2><span class="mark"></span>3. 市场对标</h2><div class="signal-grid">{benchmark_cards}</div></div>
+          <div class="section action"><h2><span class="mark"></span>4. 落地条件</h2><div class="chips">{"".join(f"<span class='chip'>{_html(channel)}</span>" for channel in channel_items[:6]) or "<span class='chip'>待补渠道</span>"}</div></div>
+        </div>
+      </div>
+      <aside class="side">
+        <div class="side-box priority"><h2>优先级</h2><ul>{_html_bullets(action_items, "完成 P0/P1 核验任务", limit=54)}</ul></div>
+        <div class="side-box debt"><h2>风险债务</h2><ul>{_html_bullets(risk_debts, "暂无高风险债务", limit=54)}</ul></div>
+        <div class="provenance">{provenance}</div>
+      </aside>
     </section>
     <section class="evidence-strip" aria-label="证据状态">
       <div class="metric"><b>{evidence['authoritative']}</b><span>T1/T2 权威来源</span></div>

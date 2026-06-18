@@ -235,6 +235,21 @@ class DeliverableGenerationTests(unittest.TestCase):
         self.assertNotIn("https://search.jd.com", html)
         self.assertNotIn("对标来源与核验边界", html)
 
+    def test_real_run_card_uses_decision_dashboard_layout(self):
+        report = launch_report_from_bundle(json.loads(REAL_RUN_FIXTURE.read_text(encoding="utf-8")))
+        html = render_overview_card_html(report)
+
+        self.assertIn("当前动作", html)
+        self.assertIn("暂缓推进", html)
+        self.assertIn("判断链路", html)
+        self.assertIn("1. 准入风险", html)
+        self.assertIn("2. 本地化缺口", html)
+        self.assertIn("3. 市场对标", html)
+        self.assertIn("4. 落地条件", html)
+        self.assertIn("优先级", html)
+        self.assertIn("风险债务", html)
+        self.assertIn("不是产品问题", html)
+
     def test_real_run_detailed_report_hides_raw_machine_fallbacks(self):
         report = launch_report_from_bundle(json.loads(REAL_RUN_FIXTURE.read_text(encoding="utf-8")))
         html = render_detailed_pdf_html(report)
